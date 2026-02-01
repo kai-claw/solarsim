@@ -1,0 +1,212 @@
+export interface PlanetData {
+  name: string
+  radius: number          // km
+  mass: string            // kg (scientific notation string)
+  distanceFromSun: number // million km (semi-major axis)
+  orbitalPeriod: number   // Earth days
+  rotationPeriod: number  // hours
+  eccentricity: number
+  inclination: number     // degrees
+  axialTilt: number       // degrees
+  meanAnomaly: number     // degrees at epoch (J2000)
+  color: string
+  emissive?: string
+  emissiveIntensity?: number
+  description: string
+  moons: number
+  hasRings: boolean
+  ringColor?: string
+  ringInner?: number      // ratio to planet radius
+  ringOuter?: number      // ratio to planet radius
+  type: 'terrestrial' | 'gas-giant' | 'ice-giant'
+  surfaceGravity: number  // m/s²
+  escapeVelocity: number  // km/s
+  temperature: string     // average
+}
+
+export const SUN_DATA = {
+  name: 'Sun',
+  radius: 696340,
+  mass: '1.989 × 10³⁰ kg',
+  color: '#FDB813',
+  emissive: '#FDB813',
+  emissiveIntensity: 2.0,
+  temperature: '5,778 K (surface)',
+  type: 'G-type main-sequence star' as const,
+  description: 'The star at the center of our Solar System. A nearly perfect ball of hot plasma heated to incandescence by nuclear fusion reactions in its core.',
+}
+
+export const PLANETS: PlanetData[] = [
+  {
+    name: 'Mercury',
+    radius: 2439.7,
+    mass: '3.301 × 10²³ kg',
+    distanceFromSun: 57.9,
+    orbitalPeriod: 87.969,
+    rotationPeriod: 1407.6,
+    eccentricity: 0.2056,
+    inclination: 7.005,
+    axialTilt: 0.034,
+    meanAnomaly: 174.796,
+    color: '#A0522D',
+    description: 'The smallest and closest planet to the Sun. Its surface is heavily cratered and resembles Earth\'s Moon.',
+    moons: 0,
+    hasRings: false,
+    type: 'terrestrial',
+    surfaceGravity: 3.7,
+    escapeVelocity: 4.25,
+    temperature: '167°C (mean)',
+  },
+  {
+    name: 'Venus',
+    radius: 6051.8,
+    mass: '4.867 × 10²⁴ kg',
+    distanceFromSun: 108.2,
+    orbitalPeriod: 224.701,
+    rotationPeriod: -5832.5, // retrograde
+    eccentricity: 0.0068,
+    inclination: 3.3947,
+    axialTilt: 177.36,
+    meanAnomaly: 50.115,
+    color: '#DEB887',
+    description: 'Often called Earth\'s twin due to similar size. Has a thick toxic atmosphere with extreme greenhouse effect.',
+    moons: 0,
+    hasRings: false,
+    type: 'terrestrial',
+    surfaceGravity: 8.87,
+    escapeVelocity: 10.36,
+    temperature: '464°C (surface)',
+  },
+  {
+    name: 'Earth',
+    radius: 6371,
+    mass: '5.972 × 10²⁴ kg',
+    distanceFromSun: 149.6,
+    orbitalPeriod: 365.256,
+    rotationPeriod: 23.934,
+    eccentricity: 0.0167,
+    inclination: 0.0,
+    axialTilt: 23.44,
+    meanAnomaly: 357.517,
+    color: '#4169E1',
+    description: 'Our home planet and the only known world to harbor life. Has liquid water on its surface and a protective magnetic field.',
+    moons: 1,
+    hasRings: false,
+    type: 'terrestrial',
+    surfaceGravity: 9.81,
+    escapeVelocity: 11.19,
+    temperature: '15°C (mean)',
+  },
+  {
+    name: 'Mars',
+    radius: 3389.5,
+    mass: '6.417 × 10²³ kg',
+    distanceFromSun: 227.9,
+    orbitalPeriod: 686.980,
+    rotationPeriod: 24.623,
+    eccentricity: 0.0934,
+    inclination: 1.8506,
+    axialTilt: 25.19,
+    meanAnomaly: 19.412,
+    color: '#CD5C5C',
+    description: 'The Red Planet. Has the largest volcano (Olympus Mons) and canyon system (Valles Marineris) in the Solar System.',
+    moons: 2,
+    hasRings: false,
+    type: 'terrestrial',
+    surfaceGravity: 3.72,
+    escapeVelocity: 5.03,
+    temperature: '-65°C (mean)',
+  },
+  {
+    name: 'Jupiter',
+    radius: 69911,
+    mass: '1.898 × 10²⁷ kg',
+    distanceFromSun: 778.5,
+    orbitalPeriod: 4332.59,
+    rotationPeriod: 9.925,
+    eccentricity: 0.0489,
+    inclination: 1.3053,
+    axialTilt: 3.13,
+    meanAnomaly: 20.020,
+    color: '#DAA520',
+    description: 'The largest planet in our Solar System. A gas giant with a Great Red Spot storm raging for hundreds of years.',
+    moons: 95,
+    hasRings: true,
+    ringColor: '#8B7355',
+    ringInner: 1.5,
+    ringOuter: 2.0,
+    type: 'gas-giant',
+    surfaceGravity: 24.79,
+    escapeVelocity: 59.5,
+    temperature: '-110°C (cloud top)',
+  },
+  {
+    name: 'Saturn',
+    radius: 58232,
+    mass: '5.683 × 10²⁶ kg',
+    distanceFromSun: 1434.0,
+    orbitalPeriod: 10759.22,
+    rotationPeriod: 10.656,
+    eccentricity: 0.0565,
+    inclination: 2.4845,
+    axialTilt: 26.73,
+    meanAnomaly: 317.020,
+    color: '#F4A460',
+    description: 'Famous for its stunning ring system. The least dense planet — it would float in water if you could find a big enough bathtub.',
+    moons: 146,
+    hasRings: true,
+    ringColor: '#C4A882',
+    ringInner: 1.5,
+    ringOuter: 3.5,
+    type: 'gas-giant',
+    surfaceGravity: 10.44,
+    escapeVelocity: 35.5,
+    temperature: '-140°C (cloud top)',
+  },
+  {
+    name: 'Uranus',
+    radius: 25362,
+    mass: '8.681 × 10²⁵ kg',
+    distanceFromSun: 2871.0,
+    orbitalPeriod: 30688.5,
+    rotationPeriod: -17.24, // retrograde
+    eccentricity: 0.0457,
+    inclination: 0.7699,
+    axialTilt: 97.77,
+    meanAnomaly: 142.238,
+    color: '#87CEEB',
+    description: 'An ice giant that rotates on its side. Has a blue-green color from methane in its atmosphere.',
+    moons: 28,
+    hasRings: true,
+    ringColor: '#5F9EA0',
+    ringInner: 1.6,
+    ringOuter: 2.2,
+    type: 'ice-giant',
+    surfaceGravity: 8.87,
+    escapeVelocity: 21.3,
+    temperature: '-195°C (cloud top)',
+  },
+  {
+    name: 'Neptune',
+    radius: 24622,
+    mass: '1.024 × 10²⁶ kg',
+    distanceFromSun: 4495.0,
+    orbitalPeriod: 60195.0,
+    rotationPeriod: 16.11,
+    eccentricity: 0.0113,
+    inclination: 1.7692,
+    axialTilt: 28.32,
+    meanAnomaly: 256.228,
+    color: '#4682B4',
+    description: 'The windiest planet with speeds up to 2,100 km/h. A deep blue ice giant at the edge of the Solar System.',
+    moons: 16,
+    hasRings: true,
+    ringColor: '#4169E1',
+    ringInner: 1.7,
+    ringOuter: 2.5,
+    type: 'ice-giant',
+    surfaceGravity: 11.15,
+    escapeVelocity: 23.5,
+    temperature: '-200°C (cloud top)',
+  },
+]
