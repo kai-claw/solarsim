@@ -10,6 +10,7 @@ import { TimeControls } from './components/TimeControls'
 import { ControlPanel } from './components/ControlPanel'
 import { PlanetInfoCard } from './components/PlanetInfoCard'
 import { EclipseLog } from './components/EclipseLog'
+import { KeyboardShortcuts } from './components/KeyboardShortcuts'
 import { PLANETS } from './data/planets'
 
 export default function App() {
@@ -39,6 +40,7 @@ export default function App() {
       <TimeControls />
       <PlanetInfoCard />
       <EclipseLog />
+      <KeyboardShortcuts />
     </div>
   )
 }

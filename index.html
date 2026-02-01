@@ -2,11 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>solarsim</title>
+    <meta name="description" content="Accurate solar system simulator with real Kepler orbital mechanics, 8 planets, asteroid belt, eclipse detection, and time controls." />
+    <meta name="theme-color" content="#000005" />
+    <meta property="og:title" content="SolarSim — Solar System Simulator" />
+    <meta property="og:description" content="Watch the solar system in motion. Real orbital mechanics, accurate planet data, time controls, and eclipse detection." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☀️</text></svg>" />
+    <title>SolarSim — Solar System Simulator</title>
+    <style>
+      body { margin: 0; background: #000005; }
+      #loader { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #000005; z-index: 9999; transition: opacity 0.5s; }
+      #loader span { color: #FDB813; font-size: 24px; font-family: -apple-system, sans-serif; animation: pulse 1.5s ease-in-out infinite; }
+      @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+    </style>
   </head>
   <body>
+    <div id="loader"><span>☀️ Loading Solar System...</span></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

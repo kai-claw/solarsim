@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useCallback } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useStore } from '../store/store'
@@ -10,6 +10,15 @@ export function Sun() {
   const meshRef = useRef<THREE.Mesh>(null)
   const glowRef = useRef<THREE.Mesh>(null)
   const scaleMode = useStore((s) => s.scaleMode)
+  const selectedPlanet = useStore((s) => s.selectedPlanet)
+  const setSelectedPlanet = useStore((s) => s.setSelectedPlanet)
+
+  const handleClick = useCallback((e: THREE.Event) => {
+    if (e && typeof e === 'object' && 'stopPropagation' in e) {
+      (e as { stopPropagation: () => void }).stopPropagation()
+    }
+    setSelectedPlanet(selectedPlanet === 'Sun' ? null : 'Sun')
+  }, [selectedPlanet, setSelectedPlanet])
 
   const radius = scaleMode === 'realistic' ? SUN_REALISTIC_RADIUS * 200 : SUN_EXAGGERATED_RADIUS
 
@@ -60,7 +69,7 @@ export function Sun() {
   return (
     <group>
       {/* Sun body */}
-      <mesh ref={meshRef} material={coronaMaterial}>
+      <mesh ref={meshRef} material={coronaMaterial} onClick={handleClick}>
         <sphereGeometry args={[radius, 64, 64]} />
       </mesh>
       {/* Glow */}
