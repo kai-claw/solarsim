@@ -115,19 +115,52 @@ export function KeyboardShortcuts({ onTourToggle, onTimeMachineToggle }: Keyboar
         position: 'absolute',
         bottom: 20,
         right: 20,
-        background: 'rgba(10, 10, 30, 0.6)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background: 'rgba(8, 8, 28, 0.6)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.06)',
         borderRadius: 8,
-        padding: '6px 10px',
+        padding: '6px 12px',
         zIndex: 100,
         fontSize: 11,
-        color: '#666',
+        color: 'rgba(255,255,255,0.3)',
         cursor: 'pointer',
-      }} onClick={() => setShowHelp(true)}>
-        Press <span style={{ color: '#888', fontWeight: 600 }}>H</span> for keyboard shortcuts
+        transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
+        animation: 'fadeInSubtle 1s ease 2s both',
+      }}
+        onClick={() => setShowHelp(true)}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'
+          e.currentTarget.style.color = 'rgba(255,255,255,0.5)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'
+          e.currentTarget.style.color = 'rgba(255,255,255,0.3)'
+        }}
+      >
+        Press <span style={{ color: 'rgba(255,255,255,0.55)', fontWeight: 600 }}>H</span> for shortcuts
       </div>
     )
   }
+
+  const shortcuts = [
+    ['Space', 'Play / Pause'],
+    ['↑ / +', 'Speed up'],
+    ['↓ / -', 'Slow down'],
+    ['1-8', 'Focus planet'],
+    ['0', 'Free camera'],
+    ['T', 'Cinematic tours'],
+    ['M', 'Time machine'],
+    ['G', 'Gravity wells'],
+    ['S', 'Toggle scale mode'],
+    ['O', 'Toggle orbits'],
+    ['L', 'Toggle labels'],
+    ['B', 'Toggle asteroid belt'],
+    ['C', 'Toggle comets'],
+    ['U', 'Copy share link'],
+    ['Esc', 'Deselect / close'],
+    ['H / ?', 'Toggle this help'],
+  ]
 
   return (
     <div style={{
@@ -137,52 +170,50 @@ export function KeyboardShortcuts({ onTourToggle, onTimeMachineToggle }: Keyboar
       alignItems: 'center',
       justifyContent: 'center',
       background: 'rgba(0, 0, 5, 0.85)',
-      backdropFilter: 'blur(8px)',
+      backdropFilter: 'blur(10px)',
       zIndex: 200,
+      animation: 'fadeInSubtle 0.25s ease',
     }} onClick={() => setShowHelp(false)}>
       <div style={{
-        background: 'rgba(10, 10, 30, 0.95)',
-        border: '1px solid rgba(255,255,255,0.15)',
-        borderRadius: 16,
-        padding: 28,
+        background: 'rgba(8, 8, 28, 0.95)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: 18,
+        padding: '28px 32px',
         maxWidth: 440,
         width: '90%',
+        animation: 'scaleIn 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
+        boxShadow: '0 24px 64px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)',
       }} onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ color: '#FDB813', fontSize: 20, fontWeight: 700, marginBottom: 16 }}>
+        <h2 style={{
+          color: '#FDB813', fontSize: 18, fontWeight: 700, marginBottom: 20,
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
           ⌨️ Keyboard Shortcuts
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '100px 1fr', gap: '8px 16px', fontSize: 13 }}>
-          {[
-            ['Space', 'Play / Pause'],
-            ['↑ / +', 'Speed up'],
-            ['↓ / -', 'Slow down'],
-            ['1-8', 'Focus planet'],
-            ['0', 'Free camera'],
-            ['T', 'Cinematic tours'],
-            ['M', 'Time machine'],
-            ['G', 'Gravity wells'],
-            ['S', 'Toggle scale mode'],
-            ['O', 'Toggle orbits'],
-            ['L', 'Toggle labels'],
-            ['B', 'Toggle asteroid belt'],
-            ['C', 'Toggle comets'],
-            ['U', 'Copy share link'],
-            ['Esc', 'Deselect / close'],
-            ['H / ?', 'Toggle this help'],
-          ].map(([key, desc]) => (
-            <>
-              <span key={`k-${key}`} style={{
+        <div style={{
+          display: 'grid', gridTemplateColumns: '90px 1fr', gap: '6px 16px', fontSize: 13,
+        }}>
+          {shortcuts.map(([key, desc], i) => (
+            <div key={`row-${key}`} style={{
+              display: 'contents',
+              animation: `staggerIn 0.2s ease ${i * 0.02}s both`,
+            }}>
+              <span style={{
                 color: '#00ff88',
-                fontFamily: 'monospace',
+                fontFamily: "'SF Mono', 'JetBrains Mono', monospace",
                 fontWeight: 600,
-                padding: '3px 0',
+                fontSize: 12,
+                padding: '4px 0',
               }}>{key}</span>
-              <span key={`d-${key}`} style={{ color: '#aaa', padding: '3px 0' }}>{desc}</span>
-            </>
+              <span style={{ color: 'rgba(255,255,255,0.55)', padding: '4px 0' }}>{desc}</span>
+            </div>
           ))}
         </div>
-        <div style={{ marginTop: 16, textAlign: 'center', color: '#555', fontSize: 11 }}>
-          Click anywhere or press Esc to close
+        <div style={{
+          marginTop: 20, textAlign: 'center',
+          color: 'rgba(255,255,255,0.25)', fontSize: 11,
+        }}>
+          Click anywhere or press <span style={{ color: 'rgba(255,255,255,0.4)' }}>Esc</span> to close
         </div>
       </div>
     </div>

@@ -48,12 +48,12 @@ export function CameraController() {
 
     const targetVec = new THREE.Vector3(pos[0], pos[1], pos[2])
 
-    // Ease-in-out transition: starts slow, accelerates, then decelerates
-    transitionProgress.current = Math.min(1, transitionProgress.current + delta * 0.8)
+    // Smooth ease-in-out: starts slow, accelerates, then decelerates
+    transitionProgress.current = Math.min(1, transitionProgress.current + delta * 0.7)
     const t = transitionProgress.current
-    // Smooth-step easing for cinematic camera motion
-    const ease = t < 1 ? t * t * (3 - 2 * t) : 1
-    const lerpFactor = 0.02 + ease * 0.06
+    // Quintic ease-out for buttery cinematic camera motion
+    const ease = t < 1 ? 1 - Math.pow(1 - t, 3) : 1
+    const lerpFactor = 0.015 + ease * 0.065
 
     controlsRef.current.target.lerp(targetVec, lerpFactor)
 

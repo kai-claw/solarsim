@@ -15,7 +15,7 @@ const styles = {
     borderRadius: 16,
     padding: 22,
     zIndex: 100,
-    animation: 'slideInRight 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+    animation: 'slideInRight 0.45s cubic-bezier(0.23, 1, 0.32, 1)',
     boxShadow: '0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
   },
   header: {
@@ -33,7 +33,7 @@ const styles = {
     background: 'rgba(255,255,255,0.06)',
     border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: 8,
-    color: '#666',
+    color: '#555',
     width: 30,
     height: 30,
     cursor: 'pointer',
@@ -41,7 +41,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'all 0.2s ease',
+    transition: 'all 0.25s cubic-bezier(0.23, 1, 0.32, 1)',
   },
   type: {
     fontSize: 10,
@@ -56,24 +56,25 @@ const styles = {
   },
   description: {
     fontSize: 13,
-    color: 'rgba(255,255,255,0.55)',
-    lineHeight: 1.6,
+    color: 'rgba(255,255,255,0.5)',
+    lineHeight: 1.65,
     marginBottom: 18,
   },
   statsGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: 6,
+    gap: 5,
   },
   stat: {
-    background: 'rgba(255,255,255,0.03)',
+    background: 'rgba(255,255,255,0.025)',
     borderRadius: 8,
     padding: '8px 10px',
-    transition: 'background 0.2s ease',
+    transition: 'all 0.25s cubic-bezier(0.23, 1, 0.32, 1)',
+    cursor: 'default',
   },
   statLabel: {
     fontSize: 9,
-    color: 'rgba(255,255,255,0.3)',
+    color: 'rgba(255,255,255,0.25)',
     textTransform: 'uppercase' as const,
     letterSpacing: 0.8,
   },
@@ -88,14 +89,23 @@ const styles = {
     marginTop: 14,
     padding: '10px 16px',
     borderRadius: 10,
-    border: '1px solid rgba(0, 255, 136, 0.25)',
-    background: 'rgba(0, 255, 136, 0.08)',
+    border: '1px solid rgba(0, 255, 136, 0.2)',
+    background: 'rgba(0, 255, 136, 0.06)',
     color: '#00ff88',
     cursor: 'pointer',
     fontSize: 13,
     fontWeight: 600,
     transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
     letterSpacing: 0.3,
+  },
+  accentLine: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 20,
+    right: 20,
+    height: 2,
+    borderRadius: '0 0 2px 2px',
+    opacity: 0.5,
   },
 }
 
@@ -120,41 +130,46 @@ export function PlanetInfoCard() {
   if (selectedPlanet === 'Sun') {
     return (
       <div style={styles.card}>
-        {/* Color accent line at top */}
         <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 20,
-          right: 20,
-          height: 2,
-          borderRadius: '0 0 2px 2px',
+          ...styles.accentLine,
           background: `linear-gradient(90deg, transparent, ${SUN_DATA.color}, transparent)`,
-          opacity: 0.6,
         }} />
         <div style={styles.header}>
           <span style={{ ...styles.name, color: SUN_DATA.color }}>{SUN_DATA.name}</span>
           <button
             style={styles.closeBtn}
             onClick={() => setSelectedPlanet(null)}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#aaa' }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#666' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+              e.currentTarget.style.color = '#aaa'
+              e.currentTarget.style.transform = 'rotate(90deg)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+              e.currentTarget.style.color = '#555'
+              e.currentTarget.style.transform = 'rotate(0deg)'
+            }}
           >✕</button>
         </div>
         <div style={{ ...styles.type, color: '#FDB813' }}>{SUN_DATA.type}</div>
         <p style={styles.description}>{SUN_DATA.description}</p>
         <div style={styles.statsGrid}>
-          <div style={styles.stat}>
-            <div style={styles.statLabel}>Radius</div>
-            <div style={styles.statValue}>{formatNumber(SUN_DATA.radius)} km</div>
-          </div>
-          <div style={styles.stat}>
-            <div style={styles.statLabel}>Mass</div>
-            <div style={styles.statValue}>{SUN_DATA.mass}</div>
-          </div>
-          <div style={styles.stat}>
-            <div style={styles.statLabel}>Temperature</div>
-            <div style={styles.statValue}>{SUN_DATA.temperature}</div>
-          </div>
+          {[
+            { label: 'Radius', value: `${formatNumber(SUN_DATA.radius)} km` },
+            { label: 'Mass', value: SUN_DATA.mass },
+            { label: 'Temperature', value: SUN_DATA.temperature },
+          ].map((s, i) => (
+            <div key={s.label} style={{
+              ...styles.stat,
+              animation: `staggerIn 0.3s ease ${i * 0.04}s both`,
+            }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.025)' }}
+            >
+              <div style={styles.statLabel}>{s.label}</div>
+              <div style={styles.statValue}>{s.value}</div>
+            </div>
+          ))}
         </div>
       </div>
     )
@@ -169,14 +184,8 @@ export function PlanetInfoCard() {
     <div style={styles.card}>
       {/* Color accent line at top */}
       <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 20,
-        right: 20,
-        height: 2,
-        borderRadius: '0 0 2px 2px',
+        ...styles.accentLine,
         background: `linear-gradient(90deg, transparent, ${planet.color}, transparent)`,
-        opacity: 0.5,
       }} />
 
       <div style={styles.header}>
@@ -184,8 +193,16 @@ export function PlanetInfoCard() {
         <button
           style={styles.closeBtn}
           onClick={() => setSelectedPlanet(null)}
-          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#aaa' }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#666' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+            e.currentTarget.style.color = '#aaa'
+            e.currentTarget.style.transform = 'rotate(90deg)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+            e.currentTarget.style.color = '#555'
+            e.currentTarget.style.transform = 'rotate(0deg)'
+          }}
         >✕</button>
       </div>
 
@@ -210,8 +227,11 @@ export function PlanetInfoCard() {
         ].map((s, i) => (
           <div key={s.label} style={{
             ...styles.stat,
-            animation: `fadeIn 0.3s ease ${i * 0.03}s both`,
-          }}>
+            animation: `staggerIn 0.3s ease ${i * 0.03}s both`,
+          }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.025)' }}
+          >
             <div style={styles.statLabel}>{s.label}</div>
             <div style={styles.statValue}>{s.value}</div>
           </div>
@@ -222,26 +242,26 @@ export function PlanetInfoCard() {
         style={{
           ...styles.followBtn,
           ...(isFollowing ? {
-            background: 'rgba(0, 255, 136, 0.18)',
-            borderColor: 'rgba(0, 255, 136, 0.45)',
-            boxShadow: '0 0 16px rgba(0, 255, 136, 0.1)',
+            background: 'rgba(0, 255, 136, 0.15)',
+            borderColor: 'rgba(0, 255, 136, 0.4)',
+            boxShadow: '0 0 16px rgba(0, 255, 136, 0.08)',
           } : {}),
         }}
         onClick={() => setCameraTarget(isFollowing ? null : planet.name)}
         onMouseEnter={(e) => {
           e.currentTarget.style.background = isFollowing
-            ? 'rgba(0, 255, 136, 0.25)'
-            : 'rgba(0, 255, 136, 0.14)'
+            ? 'rgba(0, 255, 136, 0.22)'
+            : 'rgba(0, 255, 136, 0.12)'
           e.currentTarget.style.transform = 'translateY(-1px)'
-          e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 255, 136, 0.15)'
+          e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 255, 136, 0.12)'
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.background = isFollowing
-            ? 'rgba(0, 255, 136, 0.18)'
-            : 'rgba(0, 255, 136, 0.08)'
+            ? 'rgba(0, 255, 136, 0.15)'
+            : 'rgba(0, 255, 136, 0.06)'
           e.currentTarget.style.transform = 'translateY(0)'
           e.currentTarget.style.boxShadow = isFollowing
-            ? '0 0 16px rgba(0, 255, 136, 0.1)'
+            ? '0 0 16px rgba(0, 255, 136, 0.08)'
             : 'none'
         }}
       >

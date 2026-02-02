@@ -15,8 +15,8 @@ const styles = {
     borderRadius: 14,
     padding: 14,
     zIndex: 100,
-    animation: 'slideInRight 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+    animation: 'slideInRight 0.45s cubic-bezier(0.23, 1, 0.32, 1)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03)',
   },
   title: {
     fontSize: 10,
@@ -32,17 +32,19 @@ const styles = {
   event: {
     fontSize: 11,
     color: 'rgba(255,255,255,0.6)',
-    padding: '5px 0',
+    padding: '6px 0',
     borderBottom: '1px solid rgba(255,255,255,0.03)',
-    transition: 'color 0.2s',
+    transition: 'all 0.2s ease',
+    borderRadius: 4,
   },
   alignment: {
     display: 'inline-block',
-    width: 40,
+    width: 36,
     height: 3,
     borderRadius: 2,
     marginLeft: 6,
     verticalAlign: 'middle',
+    transition: 'width 0.4s ease',
   },
 }
 
@@ -64,15 +66,19 @@ export function EclipseLog() {
         return (
           <div key={i} style={{
             ...styles.event,
-            animation: i === 0 ? 'fadeIn 0.3s ease' : 'none',
-          }}>
-            <span style={{ color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace', fontSize: 10 }}>
+            animation: i === 0 ? 'staggerIn 0.3s ease' : 'none',
+            opacity: i === 0 ? 1 : 0.8 - i * 0.05,
+          }}
+            onMouseEnter={(ev) => { ev.currentTarget.style.background = 'rgba(255,255,255,0.03)'; ev.currentTarget.style.paddingLeft = '4px' }}
+            onMouseLeave={(ev) => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.paddingLeft = '0' }}
+          >
+            <span style={{ color: 'rgba(255,255,255,0.25)', fontFamily: "'SF Mono', monospace", fontSize: 10 }}>
               {years > 0 ? `${years}y${days}d` : `${days}d`}
             </span>
             {' '}
-            <span style={{ color: 'rgba(255,255,255,0.7)' }}>{e.innerPlanet}</span>
-            <span style={{ color: 'rgba(255,255,255,0.3)' }}>–</span>
-            <span style={{ color: 'rgba(255,255,255,0.7)' }}>{e.outerPlanet}</span>
+            <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>{e.innerPlanet}</span>
+            <span style={{ color: 'rgba(255,255,255,0.2)', margin: '0 2px' }}>–</span>
+            <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>{e.outerPlanet}</span>
             <span style={{
               ...styles.alignment,
               background: `rgba(255, 107, 107, ${Math.max(0.15, e.alignment)})`,

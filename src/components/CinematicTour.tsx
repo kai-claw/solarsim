@@ -55,7 +55,7 @@ const styles = {
     background: 'rgba(255,255,255,0.02)',
     cursor: 'pointer',
     marginBottom: 8,
-    transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
+    transition: 'all 0.35s cubic-bezier(0.23, 1, 0.32, 1)',
   },
   hud: {
     position: 'absolute' as const,

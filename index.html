@@ -11,14 +11,60 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☀️</text></svg>" />
     <title>SolarSim — Solar System Simulator</title>
     <style>
-      body { margin: 0; background: #000005; }
-      #loader { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #000005; z-index: 9999; transition: opacity 0.5s; }
-      #loader span { color: #FDB813; font-size: 24px; font-family: -apple-system, sans-serif; animation: pulse 1.5s ease-in-out infinite; }
-      @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+      body { margin: 0; background: #000005; overflow: hidden; }
+      #loader {
+        position: fixed; inset: 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        background: #000005; z-index: 9999;
+        transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #loader .sun-icon {
+        font-size: 48px;
+        animation: sunPulse 2s ease-in-out infinite;
+        filter: drop-shadow(0 0 30px rgba(253, 184, 19, 0.4));
+      }
+      #loader .loader-text {
+        color: rgba(255,255,255,0.4); font-size: 13px;
+        font-family: 'Inter', -apple-system, sans-serif;
+        letter-spacing: 3px; text-transform: uppercase;
+        margin-top: 20px;
+        animation: textFadeIn 1.2s ease forwards;
+        opacity: 0;
+      }
+      #loader .orbit-ring {
+        position: absolute;
+        width: 120px; height: 120px;
+        border: 1px solid rgba(253, 184, 19, 0.1);
+        border-top-color: rgba(253, 184, 19, 0.4);
+        border-radius: 50%;
+        animation: orbitSpin 2s linear infinite;
+      }
+      #loader .orbit-ring-outer {
+        position: absolute;
+        width: 160px; height: 160px;
+        border: 1px solid rgba(253, 184, 19, 0.05);
+        border-bottom-color: rgba(253, 184, 19, 0.15);
+        border-radius: 50%;
+        animation: orbitSpin 3.5s linear infinite reverse;
+      }
+      @keyframes sunPulse {
+        0%, 100% { transform: scale(1); filter: drop-shadow(0 0 30px rgba(253, 184, 19, 0.4)); }
+        50% { transform: scale(1.08); filter: drop-shadow(0 0 50px rgba(253, 184, 19, 0.6)); }
+      }
+      @keyframes orbitSpin { to { transform: rotate(360deg); } }
+      @keyframes textFadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
     </style>
   </head>
   <body>
-    <div id="loader"><span>☀️ Loading Solar System...</span></div>
+    <div id="loader">
+      <div class="orbit-ring-outer"></div>
+      <div class="orbit-ring"></div>
+      <div class="sun-icon">☀️</div>
+      <div class="loader-text">Loading Solar System</div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

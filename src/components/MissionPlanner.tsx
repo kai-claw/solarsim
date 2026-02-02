@@ -50,7 +50,8 @@ const panelStyles = {
     fontSize: 13,
     cursor: 'pointer',
     outline: 'none',
-    transition: 'border-color 0.2s ease',
+    transition: 'all 0.25s cubic-bezier(0.23, 1, 0.32, 1)',
+    WebkitAppearance: 'none' as const,
   },
   resultBox: {
     marginTop: 14,
@@ -108,9 +109,10 @@ const panelStyles = {
     display: 'flex',
     alignItems: 'center',
     gap: 8,
-    transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
+    transition: 'all 0.35s cubic-bezier(0.23, 1, 0.32, 1)',
     boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
     letterSpacing: 0.3,
+    animation: 'fadeInSubtle 0.5s ease',
   },
 }
 

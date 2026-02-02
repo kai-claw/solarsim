@@ -27,6 +27,7 @@ export default function App() {
   const [timeMachineOpen, setTimeMachineOpen] = useState(false)
   const [sceneReady, setSceneReady] = useState(false)
   const [showTitle, setShowTitle] = useState(true)
+  const [uiReady, setUiReady] = useState(false)
 
   const handleTourToggle = useCallback(() => {
     setTourOpen((v) => !v)
@@ -44,12 +45,18 @@ export default function App() {
     setTimeMachineOpen(false)
   }, [])
 
-  // First 3 seconds: dramatic scene reveal + title
+  // Cinematic entrance sequence:
+  // 1. Scene fades in (0.1s delay → 1.8s transition)
+  // 2. Title appears with dramatic tracking animation
+  // 3. UI panels slide in with stagger (after 1.2s)
+  // 4. Title fades out (at 3.5s)
   useEffect(() => {
     const revealTimer = setTimeout(() => setSceneReady(true), 100)
+    const uiTimer = setTimeout(() => setUiReady(true), 1200)
     const titleTimer = setTimeout(() => setShowTitle(false), 3800)
     return () => {
       clearTimeout(revealTimer)
+      clearTimeout(uiTimer)
       clearTimeout(titleTimer)
     }
   }, [])
@@ -61,7 +68,7 @@ export default function App() {
         width: '100%',
         height: '100%',
         opacity: sceneReady ? 1 : 0,
-        transition: 'opacity 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        transition: 'opacity 2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
       }}>
         <Canvas
           camera={{ position: [0, 12, 20], fov: 60, near: 0.01, far: 1000 }}
@@ -89,7 +96,7 @@ export default function App() {
         </Canvas>
       </div>
 
-      {/* Cinematic title entrance — first 3 seconds */}
+      {/* Cinematic title entrance — first 3.5 seconds */}
       {showTitle && (
         <div style={{
           position: 'absolute',
@@ -104,31 +111,32 @@ export default function App() {
           pointerEvents: 'none',
           zIndex: 500,
           opacity: sceneReady ? 1 : 0,
-          transition: 'opacity 0.6s ease',
+          transition: 'opacity 0.8s ease',
         }}>
           <div style={{
-            fontSize: 42,
+            fontSize: 44,
             fontWeight: 200,
             color: '#FDB813',
             letterSpacing: 0,
-            animation: 'titleEntrance 2s cubic-bezier(0.23, 1, 0.32, 1) forwards',
-            textShadow: '0 0 60px rgba(253, 184, 19, 0.3), 0 0 120px rgba(253, 184, 19, 0.1)',
+            animation: 'titleEntrance 2.2s cubic-bezier(0.23, 1, 0.32, 1) forwards',
+            textShadow: '0 0 60px rgba(253, 184, 19, 0.25), 0 0 120px rgba(253, 184, 19, 0.08)',
             fontFamily: "'Inter', -apple-system, sans-serif",
           }}>
             SolarSim
           </div>
           <div style={{
-            fontSize: 13,
-            color: 'rgba(255, 255, 255, 0.4)',
-            marginTop: 12,
-            letterSpacing: 4,
+            fontSize: 12,
+            color: 'rgba(255, 255, 255, 0.35)',
+            marginTop: 14,
+            letterSpacing: 5,
             textTransform: 'uppercase',
             opacity: 0,
-            animation: 'fadeIn 1.2s ease 1s forwards',
+            animation: 'fadeIn 1.4s ease 0.8s forwards',
+            fontWeight: 400,
           }}>
             Explore the Solar System
           </div>
-          {/* Fade out the title */}
+          {/* Fade out the title smoothly */}
           <style>{`
             @keyframes titleExit {
               0% { opacity: 1; }
@@ -138,7 +146,7 @@ export default function App() {
           <div style={{
             position: 'absolute',
             inset: 0,
-            animation: 'titleExit 1s ease 3s forwards',
+            animation: 'titleExit 1.2s ease 3s forwards',
             pointerEvents: 'none',
           }} />
         </div>
@@ -149,14 +157,14 @@ export default function App() {
         position: 'absolute',
         inset: 0,
         pointerEvents: 'none',
-        background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%)',
+        background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.35) 100%)',
         zIndex: 50,
       }} />
 
-      {/* UI Overlays — staggered entrance */}
+      {/* UI Overlays — staggered entrance after scene settles */}
       <div style={{
-        opacity: sceneReady ? 1 : 0,
-        transition: 'opacity 0.8s ease 1.5s',
+        opacity: uiReady ? 1 : 0,
+        transition: 'opacity 0.6s ease',
       }}>
         <ControlPanel />
         <TimeControls />

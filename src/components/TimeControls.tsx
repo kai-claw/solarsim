@@ -11,15 +11,15 @@ const styles = {
     transform: 'translateX(-50%)',
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
     background: 'rgba(8, 8, 28, 0.82)',
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
     border: '1px solid rgba(255,255,255,0.08)',
     borderRadius: 14,
-    padding: '10px 18px',
+    padding: '10px 16px',
     zIndex: 100,
-    animation: 'slideInUp 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
+    animation: 'slideInUp 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
     boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)',
   },
   btn: {
@@ -44,10 +44,10 @@ const styles = {
     border: '1px solid rgba(0, 255, 136, 0.25)',
     borderRadius: '50%',
     color: '#00ff88',
-    width: 38,
-    height: 38,
+    width: 36,
+    height: 36,
     cursor: 'pointer',
-    fontSize: 16,
+    fontSize: 15,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -58,20 +58,27 @@ const styles = {
   time: {
     color: 'rgba(255,255,255,0.45)',
     fontSize: 11,
-    minWidth: 90,
+    minWidth: 80,
     textAlign: 'center' as const,
-    fontFamily: 'monospace',
+    fontFamily: "'SF Mono', 'JetBrains Mono', monospace",
     letterSpacing: 0.5,
   },
   speedIndicator: {
     position: 'absolute' as const,
-    bottom: -6,
+    bottom: -1,
     left: '50%',
     transform: 'translateX(-50%)',
     height: 2,
     borderRadius: 1,
-    background: 'rgba(100, 180, 255, 0.5)',
-    transition: 'width 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
+    background: 'linear-gradient(90deg, rgba(100, 180, 255, 0.3), rgba(100, 180, 255, 0.6), rgba(100, 180, 255, 0.3))',
+    transition: 'width 0.5s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.4s ease',
+  },
+  divider: {
+    width: 1,
+    height: 20,
+    background: 'rgba(255,255,255,0.06)',
+    margin: '0 4px',
+    flexShrink: 0,
   },
 }
 
@@ -94,7 +101,7 @@ export function TimeControls() {
   // Speed change flash effect
   useEffect(() => {
     if (containerRef.current) {
-      containerRef.current.style.borderColor = 'rgba(100, 180, 255, 0.35)'
+      containerRef.current.style.borderColor = 'rgba(100, 180, 255, 0.3)'
       const timer = setTimeout(() => {
         if (containerRef.current) {
           containerRef.current.style.borderColor = 'rgba(255,255,255,0.08)'
@@ -146,28 +153,30 @@ export function TimeControls() {
       <div style={{
         ...styles.speedIndicator,
         width: `${Math.max(10, speedRatio * 80)}%`,
-        opacity: speed > 1 ? 0.6 : 0,
+        opacity: speed > 1 ? 0.8 : 0,
       }} />
 
       <div style={styles.time}>
         {years > 0 ? `${years}y ${days}d` : `${days}d`}
       </div>
 
+      <div style={styles.divider} />
+
       <button
         style={{
           ...styles.playBtn,
           animation: paused ? 'playPulse 2s ease-in-out infinite' : 'none',
-          background: paused ? 'rgba(0, 255, 136, 0.18)' : 'rgba(255, 180, 50, 0.12)',
-          borderColor: paused ? 'rgba(0, 255, 136, 0.35)' : 'rgba(255, 180, 50, 0.25)',
+          background: paused ? 'rgba(0, 255, 136, 0.15)' : 'rgba(255, 180, 50, 0.1)',
+          borderColor: paused ? 'rgba(0, 255, 136, 0.3)' : 'rgba(255, 180, 50, 0.2)',
           color: paused ? '#00ff88' : '#FFB432',
         }}
         onClick={togglePaused}
         title={paused ? 'Play' : 'Pause'}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)'
+          e.currentTarget.style.transform = 'scale(1.12)'
           e.currentTarget.style.boxShadow = paused
-            ? '0 0 16px rgba(0, 255, 136, 0.3)'
-            : '0 0 16px rgba(255, 180, 50, 0.3)'
+            ? '0 0 18px rgba(0, 255, 136, 0.3)'
+            : '0 0 18px rgba(255, 180, 50, 0.3)'
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'scale(1)'
@@ -176,6 +185,8 @@ export function TimeControls() {
       >
         {paused ? '▶' : '⏸'}
       </button>
+
+      <div style={styles.divider} />
 
       {SPEED_OPTIONS.map((s) => (
         <button
@@ -189,12 +200,14 @@ export function TimeControls() {
             if (speed !== s) {
               e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
               e.currentTarget.style.color = '#ccc'
+              e.currentTarget.style.transform = 'translateY(-1px)'
             }
           }}
           onMouseLeave={(e) => {
             if (speed !== s) {
               e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
               e.currentTarget.style.color = '#999'
+              e.currentTarget.style.transform = 'translateY(0)'
             }
           }}
         >

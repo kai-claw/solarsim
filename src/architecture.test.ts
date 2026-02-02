@@ -713,6 +713,107 @@ describe('Cross-Module Consistency', () => {
   })
 })
 
+// ════════════════════════════════════════════════════════════════
+// 9. UI POLISH & MICRO-INTERACTION QUALITY
+// ════════════════════════════════════════════════════════════════
+
+describe('UI Polish — Red Hat #2', () => {
+  const srcRoot = path.resolve(__dirname)
+
+  it('index.css contains all core animation keyframes', () => {
+    const css = fs.readFileSync(path.join(srcRoot, 'index.css'), 'utf-8')
+    const requiredAnimations = [
+      'fadeIn', 'fadeInSubtle', 'slideInLeft', 'slideInRight', 'slideInUp',
+      'scaleIn', 'titleEntrance', 'playPulse', 'dotPulse', 'staggerIn',
+      'hudReveal', 'letterboxIn', 'shimmer',
+    ]
+    for (const anim of requiredAnimations) {
+      expect(css, `CSS should define @keyframes ${anim}`).toContain(`@keyframes ${anim}`)
+    }
+  })
+
+  it('index.css has focus-visible styles for accessibility', () => {
+    const css = fs.readFileSync(path.join(srcRoot, 'index.css'), 'utf-8')
+    expect(css).toContain('focus-visible')
+  })
+
+  it('index.css has button active press feedback', () => {
+    const css = fs.readFileSync(path.join(srcRoot, 'index.css'), 'utf-8')
+    expect(css).toContain('button:active')
+    expect(css).toContain('scale(0.97)')
+  })
+
+  it('index.css has selection styling', () => {
+    const css = fs.readFileSync(path.join(srcRoot, 'index.css'), 'utf-8')
+    expect(css).toContain('::selection')
+  })
+
+  it('index.html has a cinematic loader with orbit rings', () => {
+    const html = fs.readFileSync(path.join(srcRoot, '..', 'index.html'), 'utf-8')
+    expect(html).toContain('orbit-ring')
+    expect(html).toContain('sun-icon')
+    expect(html).toContain('loader-text')
+    expect(html).toContain('@keyframes orbitSpin')
+  })
+
+  it('ControlPanel uses ToggleSwitch instead of plain checkboxes', () => {
+    const src = fs.readFileSync(path.join(srcRoot, 'components', 'ControlPanel.tsx'), 'utf-8')
+    expect(src).toContain('ToggleSwitch')
+    expect(src).toContain('role="switch"')
+    // Should not contain <input type="checkbox"
+    expect(src).not.toContain('type="checkbox"')
+  })
+
+  it('App.tsx has staggered UI entrance timing', () => {
+    const src = fs.readFileSync(path.join(srcRoot, 'App.tsx'), 'utf-8')
+    expect(src).toContain('uiReady')
+    expect(src).toContain('setUiReady')
+  })
+
+  it('PlanetInfoCard close button has rotation animation on hover', () => {
+    const src = fs.readFileSync(path.join(srcRoot, 'components', 'PlanetInfoCard.tsx'), 'utf-8')
+    expect(src).toContain('rotate(90deg)')
+  })
+
+  it('TimeControls has visual dividers between sections', () => {
+    const src = fs.readFileSync(path.join(srcRoot, 'components', 'TimeControls.tsx'), 'utf-8')
+    expect(src).toContain('divider')
+  })
+
+  it('CameraController uses smooth cubic easing for transitions', () => {
+    const src = fs.readFileSync(path.join(srcRoot, 'components', 'CameraController.tsx'), 'utf-8')
+    expect(src).toContain('ease')
+    expect(src).toContain('Math.pow')
+  })
+
+  it('all glass panels use consistent backdrop blur (16-24px)', () => {
+    const panelFiles = [
+      'ControlPanel.tsx', 'TimeControls.tsx', 'PlanetInfoCard.tsx',
+      'EclipseLog.tsx', 'MissionPlanner.tsx', 'CinematicTour.tsx', 'TimeMachine.tsx',
+    ]
+    for (const file of panelFiles) {
+      const src = fs.readFileSync(path.join(srcRoot, 'components', file), 'utf-8')
+      expect(src, `${file} should use backdrop blur`).toMatch(/backdropFilter.*blur\(\d+px\)/)
+    }
+  })
+
+  it('main panel containers use rounded corners (radius >= 10)', () => {
+    const panelFiles = ['ControlPanel.tsx', 'TimeControls.tsx', 'PlanetInfoCard.tsx', 'EclipseLog.tsx']
+    for (const file of panelFiles) {
+      const src = fs.readFileSync(path.join(srcRoot, 'components', file), 'utf-8')
+      // Check that the first/main panel style object uses large border radius
+      const panelMatch = src.match(/panel|container|card/i)
+      expect(panelMatch, `${file} should have a panel/container/card style`).not.toBeNull()
+      // Check that file contains at least one borderRadius >= 10
+      const radiusMatches = src.match(/borderRadius:\s*(\d+)/g) || []
+      const largeRadii = radiusMatches
+        .map(m => parseInt(m.replace('borderRadius:', '').trim()))
+        .filter(v => v >= 10)
+      expect(largeRadii.length, `${file} should have at least one borderRadius >= 10`).toBeGreaterThan(0)
+    }
+  })
+})
+
 // ── Helper ────────────────────────────────────────────────────
 
 function getAllSourceFiles(dir: string): string[] {

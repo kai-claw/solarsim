@@ -59,7 +59,7 @@ const styles = {
     background: 'rgba(255,255,255,0.02)',
     marginBottom: 6,
     cursor: 'pointer',
-    transition: 'all 0.25s cubic-bezier(0.23, 1, 0.32, 1)',
+    transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
   },
   eventName: {
     fontSize: 13,
@@ -287,12 +287,7 @@ export function TimeMachine({ open, onClose }: TimeMachineProps) {
         })}
       </div>
 
-      <style>{`
-        @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(20px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
+      {/* slideInRight is defined in index.css */}
     </div>
   )
 }
