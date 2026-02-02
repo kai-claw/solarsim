@@ -7,76 +7,84 @@ const styles = {
     position: 'absolute' as const,
     top: 20,
     left: 20,
-    background: 'rgba(10, 10, 30, 0.85)',
-    backdropFilter: 'blur(12px)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 12,
-    padding: 16,
+    background: 'rgba(8, 8, 28, 0.82)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: 14,
+    padding: 18,
     zIndex: 100,
-    minWidth: 200,
-    animation: 'fadeIn 0.3s ease',
+    minWidth: 210,
+    animation: 'slideInLeft 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)',
   },
   title: {
     fontSize: 18,
     fontWeight: 700,
     color: '#FDB813',
-    marginBottom: 12,
+    marginBottom: 14,
     display: 'flex',
     alignItems: 'center',
     gap: 8,
+    animation: 'titleEntrance 1s cubic-bezier(0.23, 1, 0.32, 1) forwards',
   },
   section: {
-    marginBottom: 12,
+    marginBottom: 14,
   },
   sectionTitle: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: 600,
-    color: '#888',
+    color: 'rgba(255,255,255,0.35)',
     textTransform: 'uppercase' as const,
-    letterSpacing: 1,
-    marginBottom: 6,
+    letterSpacing: 1.5,
+    marginBottom: 8,
   },
   toggle: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '4px 0',
+    padding: '5px 0',
     fontSize: 13,
-    color: '#ccc',
+    color: '#bbb',
     cursor: 'pointer',
+    transition: 'color 0.2s',
   },
   checkbox: {
     accentColor: '#00ff88',
     cursor: 'pointer',
   },
   scaleBtn: {
-    padding: '6px 12px',
-    borderRadius: 6,
-    border: '1px solid rgba(255,255,255,0.15)',
-    background: 'rgba(255,255,255,0.05)',
-    color: '#ccc',
+    padding: '7px 14px',
+    borderRadius: 8,
+    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.04)',
+    color: '#999',
     cursor: 'pointer',
     fontSize: 12,
+    fontWeight: 500,
     marginRight: 6,
-    transition: 'all 0.2s',
+    transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
   },
   scaleBtnActive: {
-    background: 'rgba(253, 184, 19, 0.2)',
-    borderColor: 'rgba(253, 184, 19, 0.5)',
+    background: 'rgba(253, 184, 19, 0.15)',
+    borderColor: 'rgba(253, 184, 19, 0.4)',
     color: '#FDB813',
+    boxShadow: '0 0 12px rgba(253, 184, 19, 0.1)',
   },
   planetBtn: {
     display: 'block',
     width: '100%',
     textAlign: 'left' as const,
-    padding: '5px 8px',
-    borderRadius: 6,
+    padding: '6px 10px',
+    borderRadius: 8,
     border: 'none',
     background: 'transparent',
-    color: '#ccc',
+    color: '#999',
     cursor: 'pointer',
     fontSize: 12,
-    transition: 'background 0.2s',
+    fontWeight: 500,
+    transition: 'all 0.25s cubic-bezier(0.23, 1, 0.32, 1)',
+    position: 'relative' as const,
   },
 }
 
@@ -114,6 +122,18 @@ export function ControlPanel() {
                 ...(scaleMode === mode ? styles.scaleBtnActive : {}),
               }}
               onClick={() => setScaleMode(mode)}
+              onMouseEnter={(e) => {
+                if (scaleMode !== mode) {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
+                  e.currentTarget.style.color = '#ccc'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (scaleMode !== mode) {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+                  e.currentTarget.style.color = '#999'
+                }
+              }}
             >
               {mode === 'exaggerated' ? '🔭 Visible' : '📏 Realistic'}
             </button>
@@ -152,7 +172,8 @@ export function ControlPanel() {
         <button
           style={{
             ...styles.planetBtn,
-            background: cameraTarget === null ? 'rgba(255,255,255,0.1)' : 'transparent',
+            background: cameraTarget === null ? 'rgba(255,255,255,0.08)' : 'transparent',
+            color: cameraTarget === null ? '#e0e0e0' : '#999',
           }}
           onClick={() => setCameraTarget(null)}
         >
@@ -163,13 +184,25 @@ export function ControlPanel() {
             key={p.name}
             style={{
               ...styles.planetBtn,
-              background: cameraTarget === p.name ? 'rgba(255,255,255,0.1)' : 'transparent',
-              color: cameraTarget === p.name ? p.color : '#ccc',
+              background: cameraTarget === p.name ? `${p.color}18` : 'transparent',
+              color: cameraTarget === p.name ? p.color : '#999',
+              borderLeft: cameraTarget === p.name ? `2px solid ${p.color}` : '2px solid transparent',
+              paddingLeft: cameraTarget === p.name ? 10 : 12,
             }}
             onClick={() => setCameraTarget(cameraTarget === p.name ? null : p.name)}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
+            onMouseEnter={(e) => {
+              if (cameraTarget !== p.name) {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
+                e.currentTarget.style.color = '#ccc'
+                e.currentTarget.style.transform = 'translateX(2px)'
+              }
+            }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = cameraTarget === p.name ? 'rgba(255,255,255,0.1)' : 'transparent'
+              if (cameraTarget !== p.name) {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.color = '#999'
+                e.currentTarget.style.transform = 'translateX(0)'
+              }
             }}
           >
             {p.name}

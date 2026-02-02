@@ -9,11 +9,12 @@ const styles = {
     bottom: 80,
     left: '50%',
     transform: 'translateX(-50%)',
-    background: 'rgba(10, 10, 30, 0.85)',
-    backdropFilter: 'blur(12px)',
-    border: '1px solid rgba(253, 184, 19, 0.3)',
-    borderRadius: 10,
-    padding: '8px 16px',
+    background: 'rgba(8, 8, 28, 0.82)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    border: '1px solid rgba(253, 184, 19, 0.2)',
+    borderRadius: 12,
+    padding: '9px 18px',
     color: '#FDB813',
     fontSize: 13,
     fontWeight: 600,
@@ -21,8 +22,10 @@ const styles = {
     zIndex: 100,
     display: 'flex',
     alignItems: 'center',
-    gap: 6,
-    transition: 'all 0.3s ease',
+    gap: 8,
+    transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+    letterSpacing: 0.3,
   },
   // Tour selector overlay
   selector: {
@@ -30,26 +33,29 @@ const styles = {
     bottom: 120,
     left: '50%',
     transform: 'translateX(-50%)',
-    background: 'rgba(10, 10, 30, 0.95)',
-    backdropFilter: 'blur(16px)',
-    border: '1px solid rgba(253, 184, 19, 0.25)',
-    borderRadius: 16,
-    padding: 20,
+    background: 'rgba(8, 8, 28, 0.92)',
+    backdropFilter: 'blur(24px)',
+    WebkitBackdropFilter: 'blur(24px)',
+    border: '1px solid rgba(253, 184, 19, 0.15)',
+    borderRadius: 18,
+    padding: 22,
     zIndex: 200,
     width: 380,
     maxWidth: '90vw',
+    animation: 'scaleIn 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
+    boxShadow: '0 16px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)',
   },
   presetCard: {
     display: 'flex',
     alignItems: 'center',
-    gap: 12,
-    padding: '12px 14px',
-    borderRadius: 10,
-    border: '1px solid rgba(255,255,255,0.08)',
-    background: 'rgba(255,255,255,0.03)',
+    gap: 14,
+    padding: '14px 16px',
+    borderRadius: 12,
+    border: '1px solid rgba(255,255,255,0.06)',
+    background: 'rgba(255,255,255,0.02)',
     cursor: 'pointer',
     marginBottom: 8,
-    transition: 'all 0.2s ease',
+    transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
   },
   // Active tour HUD
   hud: {
@@ -60,52 +66,78 @@ const styles = {
     textAlign: 'center' as const,
     zIndex: 150,
     pointerEvents: 'none' as const,
-    animation: 'fadeIn 0.5s ease',
+    animation: 'hudReveal 0.8s cubic-bezier(0.23, 1, 0.32, 1)',
   },
   hudStopName: {
-    fontSize: 28,
-    fontWeight: 700,
+    fontSize: 32,
+    fontWeight: 300,
     color: '#fff',
-    textShadow: '0 0 30px rgba(0,0,0,0.8), 0 0 60px rgba(0,0,0,0.5)',
-    marginBottom: 8,
+    textShadow: '0 0 40px rgba(0,0,0,0.9), 0 0 80px rgba(0,0,0,0.6)',
+    marginBottom: 10,
+    letterSpacing: 2,
   },
   hudStopDesc: {
     fontSize: 15,
-    color: 'rgba(255,255,255,0.7)',
-    textShadow: '0 0 20px rgba(0,0,0,0.8)',
+    color: 'rgba(255,255,255,0.55)',
+    textShadow: '0 0 20px rgba(0,0,0,0.9)',
+    maxWidth: 400,
+    lineHeight: 1.5,
+  },
+  // Cinematic letterbox bars
+  letterboxTop: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    background: '#000',
+    zIndex: 140,
+    animation: 'letterboxIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards',
+    pointerEvents: 'none' as const,
+  },
+  letterboxBottom: {
+    position: 'absolute' as const,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    background: '#000',
+    zIndex: 140,
+    animation: 'letterboxIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards',
+    pointerEvents: 'none' as const,
   },
   // Progress bar
   progressContainer: {
     position: 'absolute' as const,
-    bottom: 70,
+    bottom: 58,
     left: '50%',
     transform: 'translateX(-50%)',
     display: 'flex',
     alignItems: 'center',
-    gap: 10,
-    background: 'rgba(10, 10, 30, 0.85)',
-    backdropFilter: 'blur(12px)',
-    border: '1px solid rgba(253, 184, 19, 0.25)',
-    borderRadius: 12,
-    padding: '10px 18px',
-    zIndex: 150,
+    gap: 12,
+    background: 'rgba(8, 8, 28, 0.85)',
+    backdropFilter: 'blur(16px)',
+    border: '1px solid rgba(253, 184, 19, 0.15)',
+    borderRadius: 14,
+    padding: '10px 20px',
+    zIndex: 160,
+    boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
   },
   progressDot: {
     width: 8,
     height: 8,
     borderRadius: '50%',
-    transition: 'all 0.3s ease',
+    transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
   },
   stopBtn: {
-    background: 'rgba(255, 100, 100, 0.15)',
-    border: '1px solid rgba(255, 100, 100, 0.3)',
-    borderRadius: 6,
+    background: 'rgba(255, 100, 100, 0.1)',
+    border: '1px solid rgba(255, 100, 100, 0.25)',
+    borderRadius: 8,
     color: '#FF6B6B',
-    padding: '4px 12px',
+    padding: '5px 14px',
     fontSize: 12,
     fontWeight: 600,
     cursor: 'pointer',
     marginLeft: 8,
+    transition: 'all 0.2s ease',
   },
 }
 
@@ -171,8 +203,7 @@ export function CinematicTour({ externalOpen, onClose }: CinematicTourProps) {
 
     setTimeout(() => setShowHUD(false), 2500)
     timerRef.current = setTimeout(() => {
-      // This will be called after the first stop duration
-      setCurrentStop(0) // reset, advanceStop will increment
+      setCurrentStop(0)
     }, preset.stops[0].durationMs)
   }, [applyStop])
 
@@ -226,53 +257,61 @@ export function CinematicTour({ externalOpen, onClose }: CinematicTourProps) {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'rgba(0,0,5,0.4)',
+            background: 'rgba(0,0,5,0.5)',
+            backdropFilter: 'blur(2px)',
             zIndex: 190,
+            animation: 'sceneReveal 0.3s ease',
           }}
           onClick={handleSelectorClose}
         />
         <div style={styles.selector}>
           <div style={{
             fontSize: 16,
-            fontWeight: 700,
+            fontWeight: 300,
             color: '#FDB813',
-            marginBottom: 16,
+            marginBottom: 18,
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 10,
+            letterSpacing: 1,
           }}>
-            🎬 Cinematic Tours
+            🎬 <span style={{ fontWeight: 600 }}>Cinematic Tours</span>
           </div>
-          {TOUR_PRESETS.map((preset) => (
+          {TOUR_PRESETS.map((preset, i) => (
             <div
               key={preset.id}
-              style={styles.presetCard}
+              style={{
+                ...styles.presetCard,
+                animation: `fadeIn 0.3s ease ${i * 0.06}s both`,
+              }}
               onClick={() => startTour(preset)}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(253, 184, 19, 0.08)'
-                e.currentTarget.style.borderColor = 'rgba(253, 184, 19, 0.3)'
+                e.currentTarget.style.background = 'rgba(253, 184, 19, 0.06)'
+                e.currentTarget.style.borderColor = 'rgba(253, 184, 19, 0.2)'
+                e.currentTarget.style.transform = 'translateX(3px)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
+                e.currentTarget.style.background = 'rgba(255,255,255,0.02)'
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'
+                e.currentTarget.style.transform = 'translateX(0)'
               }}
             >
-              <span style={{ fontSize: 28 }}>{preset.icon}</span>
+              <span style={{ fontSize: 30 }}>{preset.icon}</span>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#e0e0e0' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#e0e0e0', letterSpacing: 0.3 }}>
                   {preset.name}
                 </div>
-                <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 3, lineHeight: 1.4 }}>
                   {preset.description}
                 </div>
-                <div style={{ fontSize: 10, color: '#555', marginTop: 3 }}>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 4, letterSpacing: 0.5 }}>
                   {preset.stops.length} stops · ~{Math.round(preset.stops.reduce((a, s) => a + s.durationMs, 0) / 1000)}s
                 </div>
               </div>
             </div>
           ))}
-          <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11, color: '#555' }}>
-            Press <span style={{ color: '#888', fontWeight: 600 }}>T</span> to toggle tours · <span style={{ color: '#888', fontWeight: 600 }}>Esc</span> to close
+          <div style={{ textAlign: 'center', marginTop: 10, fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>
+            Press <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>T</span> to toggle tours · <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Esc</span> to close
           </div>
         </div>
       </>
@@ -284,10 +323,18 @@ export function CinematicTour({ externalOpen, onClose }: CinematicTourProps) {
     const stop = activeTour.stops[currentStop]
     return (
       <>
+        {/* Cinematic letterbox bars */}
+        <div style={styles.letterboxTop} />
+        <div style={styles.letterboxBottom} />
+
         {/* Cinematic overlay text */}
         {showHUD && stop && (
           <div style={styles.hud}>
-            <div style={{ fontSize: 40, marginBottom: 8 }}>{stop.icon}</div>
+            <div style={{
+              fontSize: 44,
+              marginBottom: 12,
+              filter: 'drop-shadow(0 0 20px rgba(0,0,0,0.5))',
+            }}>{stop.icon}</div>
             <div style={styles.hudStopName}>{stop.name}</div>
             <div style={styles.hudStopDesc}>{stop.description}</div>
           </div>
@@ -295,7 +342,7 @@ export function CinematicTour({ externalOpen, onClose }: CinematicTourProps) {
 
         {/* Progress bar */}
         <div style={styles.progressContainer}>
-          <span style={{ fontSize: 12, color: '#FDB813', fontWeight: 600 }}>
+          <span style={{ fontSize: 12, color: '#FDB813', fontWeight: 600, letterSpacing: 0.5 }}>
             {activeTour.icon} {activeTour.name}
           </span>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -308,14 +355,26 @@ export function CinematicTour({ externalOpen, onClose }: CinematicTourProps) {
                     ? '#FDB813'
                     : i < currentStop
                     ? 'rgba(253, 184, 19, 0.4)'
-                    : 'rgba(255,255,255,0.15)',
+                    : 'rgba(255,255,255,0.1)',
                   width: i === currentStop ? 10 : 8,
                   height: i === currentStop ? 10 : 8,
+                  animation: i === currentStop ? 'dotPulse 1.5s ease-in-out infinite' : 'none',
                 }}
               />
             ))}
           </div>
-          <button style={styles.stopBtn} onClick={stopTour}>
+          <button
+            style={styles.stopBtn}
+            onClick={stopTour}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 100, 100, 0.2)'
+              e.currentTarget.style.borderColor = 'rgba(255, 100, 100, 0.4)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 100, 100, 0.1)'
+              e.currentTarget.style.borderColor = 'rgba(255, 100, 100, 0.25)'
+            }}
+          >
             Stop
           </button>
         </div>
@@ -329,12 +388,16 @@ export function CinematicTour({ externalOpen, onClose }: CinematicTourProps) {
       style={styles.menuBtn}
       onClick={() => setShowSelector(true)}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'rgba(253, 184, 19, 0.6)'
-        e.currentTarget.style.background = 'rgba(253, 184, 19, 0.12)'
+        e.currentTarget.style.borderColor = 'rgba(253, 184, 19, 0.45)'
+        e.currentTarget.style.background = 'rgba(253, 184, 19, 0.08)'
+        e.currentTarget.style.transform = 'translateX(-50%) translateY(-2px)'
+        e.currentTarget.style.boxShadow = '0 8px 28px rgba(0,0,0,0.4), 0 0 20px rgba(253, 184, 19, 0.08)'
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'rgba(253, 184, 19, 0.3)'
-        e.currentTarget.style.background = 'rgba(10, 10, 30, 0.85)'
+        e.currentTarget.style.borderColor = 'rgba(253, 184, 19, 0.2)'
+        e.currentTarget.style.background = 'rgba(8, 8, 28, 0.82)'
+        e.currentTarget.style.transform = 'translateX(-50%) translateY(0)'
+        e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)'
       }}
     >
       🎬 Cinematic Tours

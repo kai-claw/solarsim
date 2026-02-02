@@ -15,13 +15,22 @@ export function CameraController() {
   const elapsedDays = useStore((s) => s.elapsedDays)
   const scaleMode = useStore((s) => s.scaleMode)
 
+  // Track whether we're transitioning to a new target
+  const prevTarget = useRef<string | null>(null)
+  const transitionProgress = useRef(1)
+
   useEffect(() => {
     if (!cameraTarget && controlsRef.current) {
       controlsRef.current.target.set(0, 0, 0)
     }
+    // Reset transition on target change for cinematic feel
+    if (cameraTarget !== prevTarget.current) {
+      transitionProgress.current = 0
+      prevTarget.current = cameraTarget
+    }
   }, [cameraTarget])
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (!cameraTarget || !controlsRef.current) return
 
     const planet = PLANETS.find((p) => p.name === cameraTarget)
@@ -38,12 +47,20 @@ export function CameraController() {
     )
 
     const targetVec = new THREE.Vector3(pos[0], pos[1], pos[2])
-    controlsRef.current.target.lerp(targetVec, 0.05)
 
-    // Move camera to follow
+    // Ease-in-out transition: starts slow, accelerates, then decelerates
+    transitionProgress.current = Math.min(1, transitionProgress.current + delta * 0.8)
+    const t = transitionProgress.current
+    // Smooth-step easing for cinematic camera motion
+    const ease = t < 1 ? t * t * (3 - 2 * t) : 1
+    const lerpFactor = 0.02 + ease * 0.06
+
+    controlsRef.current.target.lerp(targetVec, lerpFactor)
+
+    // Move camera to follow with weighted feel
     const camOffset = new THREE.Vector3(1, 0.5, 1).normalize().multiplyScalar(2)
     const desiredCamPos = targetVec.clone().add(camOffset)
-    camera.position.lerp(desiredCamPos, 0.03)
+    camera.position.lerp(desiredCamPos, lerpFactor * 0.7)
   })
 
   return (
@@ -57,6 +74,8 @@ export function CameraController() {
       maxDistance={100}
       dampingFactor={0.05}
       enableDamping
+      zoomSpeed={0.6}
+      rotateSpeed={0.5}
     />
   )
 }

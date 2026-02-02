@@ -1,4 +1,4 @@
-import { useRef, useMemo, useCallback } from 'react'
+import { useRef, useMemo, useCallback, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html, Ring, Line } from '@react-three/drei'
 import * as THREE from 'three'
@@ -14,6 +14,8 @@ interface PlanetProps {
 export function Planet({ data }: PlanetProps) {
   const meshRef = useRef<THREE.Mesh>(null)
   const groupRef = useRef<THREE.Group>(null)
+  const glowRef = useRef<THREE.Mesh>(null)
+  const [hovered, setHovered] = useState(false)
 
   const scaleMode = useStore((s) => s.scaleMode)
   const elapsedDays = useStore((s) => s.elapsedDays)
@@ -45,8 +47,25 @@ export function Planet({ data }: PlanetProps) {
     setSelectedPlanet(isSelected ? null : data.name)
   }, [data.name, isSelected, setSelectedPlanet])
 
+  const handlePointerOver = useCallback((e: THREE.Event) => {
+    if (e && typeof e === 'object' && 'stopPropagation' in e) {
+      (e as { stopPropagation: () => void }).stopPropagation()
+    }
+    setHovered(true)
+    document.body.style.cursor = 'pointer'
+  }, [])
+
+  const handlePointerOut = useCallback(() => {
+    setHovered(false)
+    document.body.style.cursor = 'auto'
+  }, [])
+
+  // Animated scale for hover/select feedback
+  const targetScale = useRef(1)
+  const currentScale = useRef(1)
+
   // Update position each frame
-  useFrame(() => {
+  useFrame((state) => {
     if (!groupRef.current) return
 
     const pos = getPlanetPosition(
@@ -63,6 +82,26 @@ export function Planet({ data }: PlanetProps) {
     if (meshRef.current) {
       const rotSpeed = (2 * Math.PI) / (Math.abs(data.rotationPeriod) * 3600)
       meshRef.current.rotation.y += rotSpeed * 100 * (data.rotationPeriod < 0 ? -1 : 1)
+
+      // Smooth scale animation — satisfying pop on hover/select
+      targetScale.current = hovered ? 1.15 : isSelected ? 1.08 : 1
+      currentScale.current += (targetScale.current - currentScale.current) * 0.12
+      meshRef.current.scale.setScalar(currentScale.current)
+    }
+
+    // Hover glow pulse
+    if (glowRef.current) {
+      const showGlow = hovered || isSelected || isFollowed
+      const targetOpacity = showGlow
+        ? (hovered ? 0.25 : isSelected ? 0.18 : 0.1)
+        : 0
+      const mat = glowRef.current.material as THREE.MeshBasicMaterial
+      mat.opacity += (targetOpacity - mat.opacity) * 0.1
+
+      if (showGlow) {
+        const pulse = 1 + Math.sin(state.clock.elapsedTime * 2.5) * 0.05
+        glowRef.current.scale.setScalar(pulse)
+      }
     }
   })
 
@@ -77,21 +116,38 @@ export function Planet({ data }: PlanetProps) {
           color={data.color}
           lineWidth={1}
           transparent
-          opacity={isFollowed ? 0.6 : 0.2}
+          opacity={isFollowed ? 0.6 : hovered ? 0.35 : 0.2}
         />
       )}
 
       {/* Planet group */}
       <group ref={groupRef}>
         {/* Planet sphere */}
-        <mesh ref={meshRef} onClick={handleClick}>
+        <mesh
+          ref={meshRef}
+          onClick={handleClick}
+          onPointerOver={handlePointerOver}
+          onPointerOut={handlePointerOut}
+        >
           <sphereGeometry args={[radius, 32, 32]} />
           <meshStandardMaterial
             color={planetColor}
             roughness={0.7}
             metalness={0.1}
             emissive={planetColor}
-            emissiveIntensity={0.1}
+            emissiveIntensity={hovered ? 0.3 : isSelected ? 0.2 : 0.1}
+          />
+        </mesh>
+
+        {/* Hover/selection glow sphere */}
+        <mesh ref={glowRef}>
+          <sphereGeometry args={[radius * 1.8, 24, 24]} />
+          <meshBasicMaterial
+            color={data.color}
+            transparent
+            opacity={0}
+            side={THREE.BackSide}
+            depthWrite={false}
           />
         </mesh>
 
@@ -152,12 +208,14 @@ export function Planet({ data }: PlanetProps) {
           >
             <div style={{
               color: data.color,
-              fontSize: '11px',
+              fontSize: hovered || isSelected ? '12px' : '11px',
               fontWeight: 600,
-              textShadow: '0 0 8px rgba(0,0,0,0.8)',
+              textShadow: `0 0 8px rgba(0,0,0,0.8), 0 0 20px ${data.color}40`,
               whiteSpace: 'nowrap',
               userSelect: 'none',
-              opacity: 0.9,
+              opacity: hovered || isSelected ? 1 : 0.9,
+              transition: 'all 0.3s ease',
+              transform: hovered ? 'translateY(-2px)' : 'none',
             }}>
               {data.name}
             </div>
