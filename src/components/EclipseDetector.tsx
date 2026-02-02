@@ -2,13 +2,8 @@ import { useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { PLANETS } from '../data/planets'
 import { getPlanetPosition, checkEclipseAlignment } from '../utils/orbital'
+import { getDistance } from '../utils/scale'
 import { useStore } from '../store/store'
-
-function getDistance(distMkm: number, scaleMode: string): number {
-  const au = distMkm / 149.6
-  if (scaleMode === 'realistic') return au
-  return 2 + Math.pow(au, 0.55) * 4
-}
 
 export function EclipseDetector() {
   const scaleMode = useStore((s) => s.scaleMode)

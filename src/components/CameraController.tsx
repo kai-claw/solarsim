@@ -4,14 +4,9 @@ import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { PLANETS } from '../data/planets'
 import { getPlanetPosition } from '../utils/orbital'
+import { getDistance } from '../utils/scale'
 import { useStore } from '../store/store'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
-
-function getDistance(distMkm: number, scaleMode: string): number {
-  const au = distMkm / 149.6
-  if (scaleMode === 'realistic') return au
-  return 2 + Math.pow(au, 0.55) * 4
-}
 
 export function CameraController() {
   const controlsRef = useRef<OrbitControlsImpl>(null)

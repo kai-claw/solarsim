@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useStore } from '../store/store'
 import { PLANETS } from '../data/planets'
-
-const SPEED_OPTIONS = [1, 10, 50, 100, 500, 1000, 5000, 10000]
+import { SPEED_OPTIONS } from '../utils/constants'
 
 export function KeyboardShortcuts() {
   const [showHelp, setShowHelp] = useState(false)

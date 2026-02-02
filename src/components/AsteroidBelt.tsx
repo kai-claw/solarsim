@@ -2,15 +2,11 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useStore } from '../store/store'
+import { getDistanceAU } from '../utils/scale'
 
 const ASTEROID_COUNT = 3000
 const BELT_INNER_REAL = 2.2 // AU
 const BELT_OUTER_REAL = 3.2 // AU
-
-function getDistance(au: number, scaleMode: string): number {
-  if (scaleMode === 'realistic') return au
-  return 2 + Math.pow(au, 0.55) * 4
-}
 
 export function AsteroidBelt() {
   const pointsRef = useRef<THREE.Points>(null)
@@ -18,8 +14,8 @@ export function AsteroidBelt() {
   const showAsteroidBelt = useStore((s) => s.showAsteroidBelt)
   const elapsedDays = useStore((s) => s.elapsedDays)
 
-  const innerR = getDistance(BELT_INNER_REAL, scaleMode)
-  const outerR = getDistance(BELT_OUTER_REAL, scaleMode)
+  const innerR = getDistanceAU(BELT_INNER_REAL, scaleMode)
+  const outerR = getDistanceAU(BELT_OUTER_REAL, scaleMode)
 
   const { geometry, speeds, angles } = useMemo(() => {
     const geo = new THREE.BufferGeometry()

@@ -4,30 +4,11 @@ import { Html, Ring, Line } from '@react-three/drei'
 import * as THREE from 'three'
 import type { PlanetData } from '../data/planets'
 import { getPlanetPosition, getOrbitPath } from '../utils/orbital'
+import { getDistance, getExaggeratedRadius, getRealisticRadius } from '../utils/scale'
 import { useStore } from '../store/store'
-
-// Scale factors
-const AU = 1 // 1 AU = 1 unit in scene
-const KM_TO_AU = 1 / 149597870.7
 
 interface PlanetProps {
   data: PlanetData
-}
-
-function getExaggeratedRadius(realRadius: number): number {
-  const earthRadius = 6371
-  const ratio = realRadius / earthRadius
-  return 0.06 + Math.log(1 + ratio) * 0.08
-}
-
-function getRealisticRadius(realRadius: number): number {
-  return realRadius * KM_TO_AU * 100
-}
-
-function getDistance(distMkm: number, scaleMode: string): number {
-  const au = distMkm / 149.6
-  if (scaleMode === 'realistic') return au * AU
-  return 2 + Math.pow(au, 0.55) * 4
 }
 
 export function Planet({ data }: PlanetProps) {

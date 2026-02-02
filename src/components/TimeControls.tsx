@@ -1,6 +1,5 @@
 import { useStore } from '../store/store'
-
-const SPEED_OPTIONS = [1, 10, 50, 100, 500, 1000, 5000, 10000]
+import { SPEED_OPTIONS } from '../utils/constants'
 
 const styles = {
   container: {

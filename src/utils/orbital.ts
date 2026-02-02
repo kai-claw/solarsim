@@ -6,18 +6,32 @@ const DEG_TO_RAD = Math.PI / 180
 const TWO_PI = 2 * Math.PI
 
 /**
- * Solve Kepler's equation M = E - e*sin(E) using Newton-Raphson iteration
+ * Solve Kepler's equation M = E - e*sin(E) using Newton-Raphson iteration.
+ *
+ * Returns the eccentric anomaly E (radians).
+ * If the solver does not converge within `maxIter`, the best approximation
+ * is returned (guaranteed finite) rather than silently diverging.
  */
 export function solveKepler(M: number, e: number, tolerance = 1e-8, maxIter = 50): number {
+  // Guard: eccentricity must be in [0, 1) for elliptical orbits
+  const eSafe = Math.min(Math.max(e, 0), 0.9999)
+
   // Normalize M to [0, 2π)
   let Mn = M % TWO_PI
   if (Mn < 0) Mn += TWO_PI
 
-  // Initial guess
-  let E = Mn + e * Math.sin(Mn) * (1 + e * Math.cos(Mn))
+  // Initial guess (Markley-style for better convergence at high e)
+  let E = Mn + eSafe * Math.sin(Mn) * (1 + eSafe * Math.cos(Mn))
 
   for (let i = 0; i < maxIter; i++) {
-    const dE = (E - e * Math.sin(E) - Mn) / (1 - e * Math.cos(E))
+    const sinE = Math.sin(E)
+    const cosE = Math.cos(E)
+    const denom = 1 - eSafe * cosE
+
+    // Protect against division by zero (denom ≈ 0 only if e ≈ 1 and E ≈ 0)
+    if (Math.abs(denom) < 1e-12) break
+
+    const dE = (E - eSafe * sinE - Mn) / denom
     E -= dE
     if (Math.abs(dE) < tolerance) break
   }
@@ -29,9 +43,10 @@ export function solveKepler(M: number, e: number, tolerance = 1e-8, maxIter = 50
  * Compute true anomaly from eccentric anomaly
  */
 export function trueAnomaly(E: number, e: number): number {
+  const eSafe = Math.min(Math.max(e, 0), 0.9999)
   return 2 * Math.atan2(
-    Math.sqrt(1 + e) * Math.sin(E / 2),
-    Math.sqrt(1 - e) * Math.cos(E / 2)
+    Math.sqrt(1 + eSafe) * Math.sin(E / 2),
+    Math.sqrt(1 - eSafe) * Math.cos(E / 2)
   )
 }
 
@@ -39,7 +54,10 @@ export function trueAnomaly(E: number, e: number): number {
  * Compute radius from semi-major axis, eccentricity, and true anomaly
  */
 export function orbitalRadius(a: number, e: number, v: number): number {
-  return a * (1 - e * e) / (1 + e * Math.cos(v))
+  const eSafe = Math.min(Math.max(e, 0), 0.9999)
+  const denom = 1 + eSafe * Math.cos(v)
+  if (Math.abs(denom) < 1e-12) return a // fallback to semi-major axis
+  return a * (1 - eSafe * eSafe) / denom
 }
 
 /**
@@ -54,6 +72,9 @@ export function getPlanetPosition(
   orbitalPeriodDays: number,
   elapsedDays: number,
 ): [number, number, number] {
+  // Guard: avoid division by zero for zero-period orbits
+  if (orbitalPeriodDays <= 0) return [a, 0, 0]
+
   // Mean motion (rad/day)
   const n = TWO_PI / orbitalPeriodDays
 
@@ -116,6 +137,7 @@ export function checkEclipseAlignment(
   const outerDist = Math.sqrt(outerPos[0] ** 2 + outerPos[1] ** 2 + outerPos[2] ** 2)
 
   if (innerDist >= outerDist) return 0
+  if (innerDist < 1e-12 || outerDist < 1e-12) return 0 // degenerate
 
   // Normalize vectors
   const innerNorm: [number, number, number] = [
