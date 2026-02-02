@@ -1,7 +1,14 @@
 import { create } from 'zustand'
+import type { HohmannResult } from '../utils/hohmann'
 
 export type ScaleMode = 'realistic' | 'exaggerated'
 export type CameraTarget = string | null // planet name or null for free
+
+export interface MissionData {
+  origin: string
+  destination: string
+  hohmann: HohmannResult
+}
 
 interface SolarSimState {
   // Time
@@ -15,6 +22,7 @@ interface SolarSimState {
   showLabels: boolean
   showAsteroidBelt: boolean
   showEclipses: boolean
+  showComets: boolean
 
   // Camera
   cameraTarget: CameraTarget
@@ -22,6 +30,9 @@ interface SolarSimState {
 
   // Eclipse events
   eclipseEvents: EclipseEvent[]
+
+  // Mission planner
+  showMission: MissionData | null
 
   // Actions
   setPaused: (paused: boolean) => void
@@ -33,9 +44,11 @@ interface SolarSimState {
   toggleLabels: () => void
   toggleAsteroidBelt: () => void
   toggleEclipses: () => void
+  toggleComets: () => void
   setCameraTarget: (target: CameraTarget) => void
   setSelectedPlanet: (name: string | null) => void
   addEclipseEvent: (event: EclipseEvent) => void
+  setMission: (mission: MissionData | null) => void
 }
 
 export interface EclipseEvent {
@@ -55,11 +68,13 @@ export const useStore = create<SolarSimState>((set) => ({
   showLabels: true,
   showAsteroidBelt: true,
   showEclipses: true,
+  showComets: true,
 
   cameraTarget: null,
   selectedPlanet: null,
 
   eclipseEvents: [],
+  showMission: null,
 
   setPaused: (paused) => set({ paused }),
   togglePaused: () => set((s) => ({ paused: !s.paused })),
@@ -70,9 +85,11 @@ export const useStore = create<SolarSimState>((set) => ({
   toggleLabels: () => set((s) => ({ showLabels: !s.showLabels })),
   toggleAsteroidBelt: () => set((s) => ({ showAsteroidBelt: !s.showAsteroidBelt })),
   toggleEclipses: () => set((s) => ({ showEclipses: !s.showEclipses })),
+  toggleComets: () => set((s) => ({ showComets: !s.showComets })),
   setCameraTarget: (cameraTarget) => set({ cameraTarget }),
   setSelectedPlanet: (selectedPlanet) => set({ selectedPlanet }),
   addEclipseEvent: (event) => set((s) => ({
     eclipseEvents: [...s.eclipseEvents.slice(-19), event],
   })),
+  setMission: (showMission) => set({ showMission }),
 }))

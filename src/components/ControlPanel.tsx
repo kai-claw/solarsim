@@ -86,12 +86,14 @@ export function ControlPanel() {
   const showLabels = useStore((s) => s.showLabels)
   const showAsteroidBelt = useStore((s) => s.showAsteroidBelt)
   const showEclipses = useStore((s) => s.showEclipses)
+  const showComets = useStore((s) => s.showComets)
   const cameraTarget = useStore((s) => s.cameraTarget)
   const setScaleMode = useStore((s) => s.setScaleMode)
   const toggleOrbits = useStore((s) => s.toggleOrbits)
   const toggleLabels = useStore((s) => s.toggleLabels)
   const toggleAsteroidBelt = useStore((s) => s.toggleAsteroidBelt)
   const toggleEclipses = useStore((s) => s.toggleEclipses)
+  const toggleComets = useStore((s) => s.toggleComets)
   const setCameraTarget = useStore((s) => s.setCameraTarget)
 
   return (
@@ -137,6 +139,10 @@ export function ControlPanel() {
         <label style={styles.toggle}>
           Eclipse Detection
           <input type="checkbox" checked={showEclipses} onChange={toggleEclipses} style={styles.checkbox} />
+        </label>
+        <label style={styles.toggle}>
+          Comets
+          <input type="checkbox" checked={showComets} onChange={toggleComets} style={styles.checkbox} />
         </label>
       </div>
 

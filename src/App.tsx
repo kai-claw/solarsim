@@ -1,17 +1,21 @@
 import { Canvas } from '@react-three/fiber'
 import { Sun } from './components/Sun'
 import { Planet } from './components/Planet'
+import { Comet } from './components/Comet'
 import { AsteroidBelt } from './components/AsteroidBelt'
 import { Starfield } from './components/Starfield'
 import { CameraController } from './components/CameraController'
 import { EclipseDetector } from './components/EclipseDetector'
+import { MissionTrajectory } from './components/MissionTrajectory'
 import { SimLoop } from './components/SimLoop'
 import { TimeControls } from './components/TimeControls'
 import { ControlPanel } from './components/ControlPanel'
 import { PlanetInfoCard } from './components/PlanetInfoCard'
 import { EclipseLog } from './components/EclipseLog'
+import { MissionPlanner } from './components/MissionPlanner'
 import { KeyboardShortcuts } from './components/KeyboardShortcuts'
 import { PLANETS } from './data/planets'
+import { COMETS } from './data/comets'
 
 export default function App() {
   return (
@@ -31,8 +35,12 @@ export default function App() {
         {PLANETS.map((planet) => (
           <Planet key={planet.name} data={planet} />
         ))}
+        {COMETS.map((comet) => (
+          <Comet key={comet.name} data={comet} />
+        ))}
         <AsteroidBelt />
         <EclipseDetector />
+        <MissionTrajectory />
       </Canvas>
 
       {/* UI Overlays */}
@@ -40,6 +48,7 @@ export default function App() {
       <TimeControls />
       <PlanetInfoCard />
       <EclipseLog />
+      <MissionPlanner />
       <KeyboardShortcuts />
     </div>
   )
