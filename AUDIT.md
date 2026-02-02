@@ -2,6 +2,49 @@
 
 ---
 
+## ⚫ Black Hat #2 — Re-Audit (Pass 8/10)
+
+**Date:** 2025-07-15
+**Focus:** Memory leaks, timer cleanup, code quality in passes 3-7
+
+### Issues Found & Fixed
+
+| # | Severity | Component | Issue | Fix |
+|---|----------|-----------|-------|-----|
+| 1 | 🔴 High | GravityGrid.tsx | Geometry + ShaderMaterial never disposed → GPU memory leak | Added useEffect cleanup with `.dispose()` |
+| 2 | 🔴 High | Starfield.tsx | Two BufferGeometry instances (8,000 stars) never disposed | Added useEffect cleanup |
+| 3 | 🔴 High | Sun.tsx | Custom ShaderMaterial (corona) never disposed | Added useEffect cleanup |
+| 4 | 🔴 High | AsteroidBelt.tsx | BufferGeometry (3,000 asteroids) never disposed; leaked on scaleMode change | Added useEffect cleanup with dependency tracking |
+| 5 | 🟡 Medium | MissionPlanner.tsx | `useMemo` used for side effect (`setMission`) — can re-fire unpredictably | Changed to `useEffect` |
+| 6 | 🟡 Medium | CinematicTour.tsx | Untracked `setTimeout` for HUD hide — fires after unmount/stop | Added `hudTimerRef` + `clearTimers()` helper |
+| 7 | 🟡 Medium | CinematicTour.tsx | Duplicate timer logic between `advanceStop` callback and `useEffect` | Removed dead `advanceStop`; single `useEffect` drives progression |
+| 8 | 🟢 Low | CinematicTour.tsx | 407 LOC monolith (Blue Hat flagged) | Extracted `TourSelector` + `TourHUD` sub-components; main fn now ~100 LOC |
+
+### Metrics
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Three.js dispose calls | 0 | 7 (4 geometry + 3 material) |
+| Untracked setTimeout | 3 | 0 |
+| useMemo side effects | 1 | 0 |
+| Dead code (advanceStop) | 1 function | Removed |
+| CinematicTour main fn LOC | ~200 | ~100 |
+| Tests | 218 | **236** (+18) |
+| TS errors | 0 | 0 |
+| Build | ✅ | ✅ |
+
+### New Test Coverage (18 tests)
+
+| Suite | Tests | Validates |
+|-------|:-----:|-----------|
+| Three.js resource cleanup | 5 | All 4 components dispose resources, all import useEffect |
+| CinematicTour timer mgmt | 5 | hudTimerRef exists, clearTimers function, cleanup return, stopTour cleanup, no untracked setTimeout |
+| CinematicTour structure | 4 | TourSelector extracted, TourHUD extracted, both used, main fn < 120 LOC |
+| MissionPlanner correctness | 2 | useEffect for side effects, no useMemo side effects |
+| Dead code audit | 2 | No advanceStop, no console.log in any component |
+
+---
+
 ## 🔵 Blue Hat — Process & Summary (Pass 6/10)
 
 **Date:** 2025-07-15  

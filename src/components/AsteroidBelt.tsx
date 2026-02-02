@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useStore } from '../store/store'
@@ -40,6 +40,11 @@ export function AsteroidBelt() {
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
     return { geometry: geo, speeds: spd, angles: ang }
   }, [innerR, outerR])
+
+  // Dispose geometry on unmount or when recreated
+  useEffect(() => {
+    return () => { geometry.dispose() }
+  }, [geometry])
 
   useFrame(() => {
     if (!pointsRef.current || !showAsteroidBelt) return

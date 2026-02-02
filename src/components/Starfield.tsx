@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
@@ -56,6 +56,14 @@ export function Starfield() {
 
   const nearGeo = useMemo(() => createStarLayer(NEAR_STARS, NEAR_SPREAD, 0.18), [])
   const farGeo = useMemo(() => createStarLayer(FAR_STARS, FAR_SPREAD, 0.08), [])
+
+  // Dispose geometries on unmount
+  useEffect(() => {
+    return () => {
+      nearGeo.dispose()
+      farGeo.dispose()
+    }
+  }, [nearGeo, farGeo])
 
   // Subtle twinkling via opacity modulation + slow rotation
   useFrame((state, delta) => {

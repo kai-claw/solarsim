@@ -6,7 +6,7 @@
  * The Sun creates a deep well, planets create smaller dips.
  */
 
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { PLANETS } from '../data/planets'
@@ -120,6 +120,14 @@ export function GravityGrid() {
       blending: THREE.AdditiveBlending,
     })
   }, [])
+
+  // Dispose Three.js resources on unmount
+  useEffect(() => {
+    return () => {
+      geometry.dispose()
+      material.dispose()
+    }
+  }, [geometry, material])
 
   // Smooth fade for visibility
   const opacityRef = useRef(0)

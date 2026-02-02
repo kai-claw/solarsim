@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useStore } from '../store/store'
 import { PLANETS } from '../data/planets'
 import { computeHohmann } from '../utils/hohmann'
@@ -138,7 +138,7 @@ export function MissionPlanner() {
   }
 
   // Update store with mission data when computed
-  useMemo(() => {
+  useEffect(() => {
     if (hohmann && isOpen) {
       setMission({ origin, destination, hohmann })
     }
