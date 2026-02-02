@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { useStore } from '../store/store'
 import { SPEED_OPTIONS } from '../utils/constants'
+import { TIME_EVENTS, getCategoryColor } from '../data/timeEvents'
 
 const styles = {
   container: {
@@ -78,12 +79,17 @@ export function TimeControls() {
   const paused = useStore((s) => s.paused)
   const speed = useStore((s) => s.speed)
   const elapsedDays = useStore((s) => s.elapsedDays)
+  const activeEvent = useStore((s) => s.activeEvent)
   const togglePaused = useStore((s) => s.togglePaused)
   const setSpeed = useStore((s) => s.setSpeed)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const years = Math.floor(elapsedDays / 365.256)
   const days = Math.floor(elapsedDays % 365.256)
+
+  // Active time machine event
+  const currentEvent = activeEvent ? TIME_EVENTS.find((e) => e.id === activeEvent) : null
+  const eventColor = currentEvent ? getCategoryColor(currentEvent.category) : '#fff'
 
   // Speed change flash effect
   useEffect(() => {
@@ -102,6 +108,36 @@ export function TimeControls() {
   const speedRatio = SPEED_OPTIONS.indexOf(speed) / (SPEED_OPTIONS.length - 1)
 
   return (
+    <>
+    {currentEvent && (
+      <div style={{
+        position: 'absolute',
+        bottom: 72,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        background: 'rgba(8, 8, 28, 0.88)',
+        backdropFilter: 'blur(16px)',
+        border: `1px solid ${eventColor}40`,
+        borderRadius: 10,
+        padding: '8px 16px',
+        zIndex: 100,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        animation: 'slideInUp 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+        boxShadow: `0 4px 20px ${eventColor}15`,
+      }}>
+        <span style={{ fontSize: 16 }}>{currentEvent.emoji}</span>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: eventColor }}>
+            {currentEvent.name}
+          </div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>
+            {currentEvent.date}
+          </div>
+        </div>
+      </div>
+    )}
     <div ref={containerRef} style={{
       ...styles.container,
       transition: 'border-color 0.5s ease',
@@ -166,5 +202,6 @@ export function TimeControls() {
         </button>
       ))}
     </div>
+    </>
   )
 }

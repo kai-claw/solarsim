@@ -5,9 +5,10 @@ import { SPEED_OPTIONS } from '../utils/constants'
 
 interface KeyboardShortcutsProps {
   onTourToggle?: () => void
+  onTimeMachineToggle?: () => void
 }
 
-export function KeyboardShortcuts({ onTourToggle }: KeyboardShortcutsProps) {
+export function KeyboardShortcuts({ onTourToggle, onTimeMachineToggle }: KeyboardShortcutsProps) {
   const [showHelp, setShowHelp] = useState(false)
   const togglePaused = useStore((s) => s.togglePaused)
   const setSpeed = useStore((s) => s.setSpeed)
@@ -16,6 +17,7 @@ export function KeyboardShortcuts({ onTourToggle }: KeyboardShortcutsProps) {
   const toggleLabels = useStore((s) => s.toggleLabels)
   const toggleAsteroidBelt = useStore((s) => s.toggleAsteroidBelt)
   const toggleComets = useStore((s) => s.toggleComets)
+  const toggleGravityGrid = useStore((s) => s.toggleGravityGrid)
   const scaleMode = useStore((s) => s.scaleMode)
   const setScaleMode = useStore((s) => s.setScaleMode)
   const setCameraTarget = useStore((s) => s.setCameraTarget)
@@ -63,6 +65,12 @@ export function KeyboardShortcuts({ onTourToggle }: KeyboardShortcutsProps) {
         case 'c':
           toggleComets()
           break
+        case 'g':
+          toggleGravityGrid()
+          break
+        case 'm':
+          onTimeMachineToggle?.()
+          break
         case 'u':
           handleShareLink()
           break
@@ -99,7 +107,7 @@ export function KeyboardShortcuts({ onTourToggle }: KeyboardShortcutsProps) {
 
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [togglePaused, setSpeed, speed, toggleOrbits, toggleLabels, toggleAsteroidBelt, toggleComets, scaleMode, setScaleMode, setCameraTarget, setSelectedPlanet, onTourToggle, handleShareLink])
+  }, [togglePaused, setSpeed, speed, toggleOrbits, toggleLabels, toggleAsteroidBelt, toggleComets, toggleGravityGrid, scaleMode, setScaleMode, setCameraTarget, setSelectedPlanet, onTourToggle, onTimeMachineToggle, handleShareLink])
 
   if (!showHelp) {
     return (
@@ -151,6 +159,8 @@ export function KeyboardShortcuts({ onTourToggle }: KeyboardShortcutsProps) {
             ['1-8', 'Focus planet'],
             ['0', 'Free camera'],
             ['T', 'Cinematic tours'],
+            ['M', 'Time machine'],
+            ['G', 'Gravity wells'],
             ['S', 'Toggle scale mode'],
             ['O', 'Toggle orbits'],
             ['L', 'Toggle labels'],

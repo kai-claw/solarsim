@@ -23,6 +23,7 @@ interface SolarSimState {
   showAsteroidBelt: boolean
   showEclipses: boolean
   showComets: boolean
+  showGravityGrid: boolean
 
   // Camera
   cameraTarget: CameraTarget
@@ -34,21 +35,27 @@ interface SolarSimState {
   // Mission planner
   showMission: MissionData | null
 
+  // Time Machine
+  activeEvent: string | null
+
   // Actions
   setPaused: (paused: boolean) => void
   togglePaused: () => void
   setSpeed: (speed: number) => void
   advanceTime: (deltaDays: number) => void
+  setElapsedDays: (days: number) => void
   setScaleMode: (mode: ScaleMode) => void
   toggleOrbits: () => void
   toggleLabels: () => void
   toggleAsteroidBelt: () => void
   toggleEclipses: () => void
   toggleComets: () => void
+  toggleGravityGrid: () => void
   setCameraTarget: (target: CameraTarget) => void
   setSelectedPlanet: (name: string | null) => void
   addEclipseEvent: (event: EclipseEvent) => void
   setMission: (mission: MissionData | null) => void
+  setActiveEvent: (eventId: string | null) => void
 }
 
 export interface EclipseEvent {
@@ -69,6 +76,7 @@ export const useStore = create<SolarSimState>((set) => ({
   showAsteroidBelt: true,
   showEclipses: true,
   showComets: true,
+  showGravityGrid: false,
 
   cameraTarget: null,
   selectedPlanet: null,
@@ -76,20 +84,25 @@ export const useStore = create<SolarSimState>((set) => ({
   eclipseEvents: [],
   showMission: null,
 
+  activeEvent: null,
+
   setPaused: (paused) => set({ paused }),
   togglePaused: () => set((s) => ({ paused: !s.paused })),
   setSpeed: (speed) => set({ speed }),
   advanceTime: (deltaDays) => set((s) => ({ elapsedDays: s.elapsedDays + deltaDays })),
+  setElapsedDays: (days) => set({ elapsedDays: days }),
   setScaleMode: (scaleMode) => set({ scaleMode }),
   toggleOrbits: () => set((s) => ({ showOrbits: !s.showOrbits })),
   toggleLabels: () => set((s) => ({ showLabels: !s.showLabels })),
   toggleAsteroidBelt: () => set((s) => ({ showAsteroidBelt: !s.showAsteroidBelt })),
   toggleEclipses: () => set((s) => ({ showEclipses: !s.showEclipses })),
   toggleComets: () => set((s) => ({ showComets: !s.showComets })),
+  toggleGravityGrid: () => set((s) => ({ showGravityGrid: !s.showGravityGrid })),
   setCameraTarget: (cameraTarget) => set({ cameraTarget }),
   setSelectedPlanet: (selectedPlanet) => set({ selectedPlanet }),
   addEclipseEvent: (event) => set((s) => ({
     eclipseEvents: [...s.eclipseEvents.slice(-19), event],
   })),
   setMission: (showMission) => set({ showMission }),
+  setActiveEvent: (activeEvent) => set({ activeEvent }),
 }))

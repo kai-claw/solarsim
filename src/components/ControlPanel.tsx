@@ -95,6 +95,7 @@ export function ControlPanel() {
   const showAsteroidBelt = useStore((s) => s.showAsteroidBelt)
   const showEclipses = useStore((s) => s.showEclipses)
   const showComets = useStore((s) => s.showComets)
+  const showGravityGrid = useStore((s) => s.showGravityGrid)
   const cameraTarget = useStore((s) => s.cameraTarget)
   const setScaleMode = useStore((s) => s.setScaleMode)
   const toggleOrbits = useStore((s) => s.toggleOrbits)
@@ -102,6 +103,7 @@ export function ControlPanel() {
   const toggleAsteroidBelt = useStore((s) => s.toggleAsteroidBelt)
   const toggleEclipses = useStore((s) => s.toggleEclipses)
   const toggleComets = useStore((s) => s.toggleComets)
+  const toggleGravityGrid = useStore((s) => s.toggleGravityGrid)
   const setCameraTarget = useStore((s) => s.setCameraTarget)
 
   return (
@@ -163,6 +165,10 @@ export function ControlPanel() {
         <label style={styles.toggle}>
           Comets
           <input type="checkbox" checked={showComets} onChange={toggleComets} style={styles.checkbox} />
+        </label>
+        <label style={styles.toggle}>
+          Gravity Wells
+          <input type="checkbox" checked={showGravityGrid} onChange={toggleGravityGrid} style={styles.checkbox} />
         </label>
       </div>
 

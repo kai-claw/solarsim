@@ -8,6 +8,7 @@ import { Starfield } from './components/Starfield'
 import { CameraController } from './components/CameraController'
 import { EclipseDetector } from './components/EclipseDetector'
 import { MissionTrajectory } from './components/MissionTrajectory'
+import { GravityGrid } from './components/GravityGrid'
 import { SimLoop } from './components/SimLoop'
 import { TimeControls } from './components/TimeControls'
 import { ControlPanel } from './components/ControlPanel'
@@ -16,12 +17,14 @@ import { EclipseLog } from './components/EclipseLog'
 import { MissionPlanner } from './components/MissionPlanner'
 import { KeyboardShortcuts } from './components/KeyboardShortcuts'
 import { CinematicTour } from './components/CinematicTour'
+import { TimeMachine } from './components/TimeMachine'
 import { URLStateSync } from './components/URLStateSync'
 import { PLANETS } from './data/planets'
 import { COMETS } from './data/comets'
 
 export default function App() {
   const [tourOpen, setTourOpen] = useState(false)
+  const [timeMachineOpen, setTimeMachineOpen] = useState(false)
   const [sceneReady, setSceneReady] = useState(false)
   const [showTitle, setShowTitle] = useState(true)
 
@@ -31,6 +34,14 @@ export default function App() {
 
   const handleTourClose = useCallback(() => {
     setTourOpen(false)
+  }, [])
+
+  const handleTimeMachineToggle = useCallback(() => {
+    setTimeMachineOpen((v) => !v)
+  }, [])
+
+  const handleTimeMachineClose = useCallback(() => {
+    setTimeMachineOpen(false)
   }, [])
 
   // First 3 seconds: dramatic scene reveal + title
@@ -74,6 +85,7 @@ export default function App() {
           <AsteroidBelt />
           <EclipseDetector />
           <MissionTrajectory />
+          <GravityGrid />
         </Canvas>
       </div>
 
@@ -152,7 +164,8 @@ export default function App() {
         <EclipseLog />
         <MissionPlanner />
         <CinematicTour externalOpen={tourOpen} onClose={handleTourClose} />
-        <KeyboardShortcuts onTourToggle={handleTourToggle} />
+        <TimeMachine open={timeMachineOpen} onClose={handleTimeMachineClose} />
+        <KeyboardShortcuts onTourToggle={handleTourToggle} onTimeMachineToggle={handleTimeMachineToggle} />
         <URLStateSync />
       </div>
     </div>

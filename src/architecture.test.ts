@@ -51,7 +51,7 @@ describe('Directory Structure', () => {
       'EclipseLog.tsx', 'TimeControls.tsx', 'ControlPanel.tsx',
       'PlanetInfoCard.tsx', 'KeyboardShortcuts.tsx', 'CinematicTour.tsx',
       'MissionPlanner.tsx', 'MissionTrajectory.tsx', 'URLStateSync.tsx',
-      'Comet.tsx', 'PhysicsTooltips.tsx',
+      'Comet.tsx', 'PhysicsTooltips.tsx', 'GravityGrid.tsx', 'TimeMachine.tsx',
     ]
     for (const file of expected) {
       expect(
@@ -64,6 +64,7 @@ describe('Directory Structure', () => {
   it('has all expected data files', () => {
     expect(fs.existsSync(path.join(srcRoot, 'data', 'planets.ts'))).toBe(true)
     expect(fs.existsSync(path.join(srcRoot, 'data', 'comets.ts'))).toBe(true)
+    expect(fs.existsSync(path.join(srcRoot, 'data', 'timeEvents.ts'))).toBe(true)
   })
 
   it('has all expected utility files', () => {
@@ -82,9 +83,9 @@ describe('Directory Structure', () => {
     const requiredImports = [
       'Sun', 'Planet', 'Comet', 'AsteroidBelt', 'Starfield',
       'CameraController', 'EclipseDetector', 'MissionTrajectory',
-      'SimLoop', 'TimeControls', 'ControlPanel', 'PlanetInfoCard',
-      'EclipseLog', 'MissionPlanner', 'KeyboardShortcuts',
-      'CinematicTour', 'URLStateSync',
+      'GravityGrid', 'SimLoop', 'TimeControls', 'ControlPanel',
+      'PlanetInfoCard', 'EclipseLog', 'MissionPlanner', 'KeyboardShortcuts',
+      'CinematicTour', 'TimeMachine', 'URLStateSync',
     ]
     for (const name of requiredImports) {
       expect(appSource, `App.tsx should import ${name}`).toContain(name)
@@ -400,19 +401,22 @@ describe('Store State Shape', () => {
     expect(state.showAsteroidBelt).toBe(true)
     expect(state.showEclipses).toBe(true)
     expect(state.showComets).toBe(true)
+    expect(state.showGravityGrid).toBe(false)
     expect(state.cameraTarget).toBeNull()
     expect(state.selectedPlanet).toBeNull()
     expect(state.eclipseEvents).toEqual([])
     expect(state.showMission).toBeNull()
+    expect(state.activeEvent).toBeNull()
   })
 
   it('has all required action functions', () => {
     const state = useStore.getState()
     const actions = [
-      'setPaused', 'togglePaused', 'setSpeed', 'advanceTime',
+      'setPaused', 'togglePaused', 'setSpeed', 'advanceTime', 'setElapsedDays',
       'setScaleMode', 'toggleOrbits', 'toggleLabels', 'toggleAsteroidBelt',
-      'toggleEclipses', 'toggleComets', 'setCameraTarget', 'setSelectedPlanet',
-      'addEclipseEvent', 'setMission',
+      'toggleEclipses', 'toggleComets', 'toggleGravityGrid',
+      'setCameraTarget', 'setSelectedPlanet',
+      'addEclipseEvent', 'setMission', 'setActiveEvent',
     ]
     for (const action of actions) {
       expect(typeof (state as Record<string, unknown>)[action], `${action} should be a function`).toBe('function')
@@ -421,7 +425,7 @@ describe('Store State Shape', () => {
 
   it('toggle actions flip boolean state', () => {
     const store = useStore
-    store.setState({ showOrbits: true, showLabels: true, showAsteroidBelt: true, showComets: true, showEclipses: true, paused: false })
+    store.setState({ showOrbits: true, showLabels: true, showAsteroidBelt: true, showComets: true, showEclipses: true, showGravityGrid: false, paused: false })
 
     store.getState().toggleOrbits()
     expect(store.getState().showOrbits).toBe(false)
@@ -434,6 +438,9 @@ describe('Store State Shape', () => {
 
     store.getState().toggleComets()
     expect(store.getState().showComets).toBe(false)
+
+    store.getState().toggleGravityGrid()
+    expect(store.getState().showGravityGrid).toBe(true)
 
     store.getState().togglePaused()
     expect(store.getState().paused).toBe(true)

@@ -19,6 +19,8 @@ export function URLStateSync() {
   const showLabels = useStore((s) => s.showLabels)
   const showAsteroidBelt = useStore((s) => s.showAsteroidBelt)
   const showComets = useStore((s) => s.showComets)
+  const showGravityGrid = useStore((s) => s.showGravityGrid)
+  const activeEvent = useStore((s) => s.activeEvent)
 
   const setSpeed = useStore((s) => s.setSpeed)
   const setPaused = useStore((s) => s.setPaused)
@@ -52,6 +54,8 @@ export function URLStateSync() {
     if (state.labels === false) useStore.getState().toggleLabels()
     if (state.belt === false) useStore.getState().toggleAsteroidBelt()
     if (state.comets === false) useStore.getState().toggleComets()
+    if (state.gravity) useStore.getState().toggleGravityGrid()
+    if (state.event) useStore.getState().setActiveEvent(state.event)
   }, [setSpeed, setPaused, setCameraTarget, setSelectedPlanet, setScaleMode])
 
   // Debounced URL update on state changes
@@ -71,13 +75,15 @@ export function URLStateSync() {
         labels: showLabels,
         belt: showAsteroidBelt,
         comets: showComets,
+        gravity: showGravityGrid,
+        event: activeEvent || undefined,
       })
     }, 500)
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }, [speed, paused, elapsedDays, cameraTarget, selectedPlanet, scaleMode, showOrbits, showLabels, showAsteroidBelt, showComets])
+  }, [speed, paused, elapsedDays, cameraTarget, selectedPlanet, scaleMode, showOrbits, showLabels, showAsteroidBelt, showComets, showGravityGrid, activeEvent])
 
   return null
 }

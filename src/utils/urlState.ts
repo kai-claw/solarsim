@@ -14,6 +14,8 @@ export interface URLState {
   labels?: boolean
   belt?: boolean
   comets?: boolean
+  gravity?: boolean
+  event?: string // time machine event id
   tour?: string // tour preset name
 }
 
@@ -33,6 +35,8 @@ export function encodeURLState(state: URLState): string {
   if (state.labels === false) params.set('l', '0')
   if (state.belt === false) params.set('b', '0')
   if (state.comets === false) params.set('c', '0')
+  if (state.gravity) params.set('g', '1')
+  if (state.event) params.set('ev', state.event)
   if (state.tour) params.set('tour', state.tour)
 
   const str = params.toString()
@@ -69,6 +73,10 @@ export function decodeURLState(hash: string): URLState {
   if (params.get('l') === '0') state.labels = false
   if (params.get('b') === '0') state.belt = false
   if (params.get('c') === '0') state.comets = false
+  if (params.get('g') === '1') state.gravity = true
+
+  const ev = params.get('ev')
+  if (ev) state.event = ev
 
   const tour = params.get('tour')
   if (tour) state.tour = tour
