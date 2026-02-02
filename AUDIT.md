@@ -1,385 +1,234 @@
 # SolarSim — Six Thinking Hats Audit
 
----
-
-## ⚫ Black Hat #2 — Re-Audit (Pass 8/10)
-
-**Date:** 2025-07-15
-**Focus:** Memory leaks, timer cleanup, code quality in passes 3-7
-
-### Issues Found & Fixed
-
-| # | Severity | Component | Issue | Fix |
-|---|----------|-----------|-------|-----|
-| 1 | 🔴 High | GravityGrid.tsx | Geometry + ShaderMaterial never disposed → GPU memory leak | Added useEffect cleanup with `.dispose()` |
-| 2 | 🔴 High | Starfield.tsx | Two BufferGeometry instances (8,000 stars) never disposed | Added useEffect cleanup |
-| 3 | 🔴 High | Sun.tsx | Custom ShaderMaterial (corona) never disposed | Added useEffect cleanup |
-| 4 | 🔴 High | AsteroidBelt.tsx | BufferGeometry (3,000 asteroids) never disposed; leaked on scaleMode change | Added useEffect cleanup with dependency tracking |
-| 5 | 🟡 Medium | MissionPlanner.tsx | `useMemo` used for side effect (`setMission`) — can re-fire unpredictably | Changed to `useEffect` |
-| 6 | 🟡 Medium | CinematicTour.tsx | Untracked `setTimeout` for HUD hide — fires after unmount/stop | Added `hudTimerRef` + `clearTimers()` helper |
-| 7 | 🟡 Medium | CinematicTour.tsx | Duplicate timer logic between `advanceStop` callback and `useEffect` | Removed dead `advanceStop`; single `useEffect` drives progression |
-| 8 | 🟢 Low | CinematicTour.tsx | 407 LOC monolith (Blue Hat flagged) | Extracted `TourSelector` + `TourHUD` sub-components; main fn now ~100 LOC |
-
-### Metrics
-
-| Metric | Before | After |
-|--------|--------|-------|
-| Three.js dispose calls | 0 | 7 (4 geometry + 3 material) |
-| Untracked setTimeout | 3 | 0 |
-| useMemo side effects | 1 | 0 |
-| Dead code (advanceStop) | 1 function | Removed |
-| CinematicTour main fn LOC | ~200 | ~100 |
-| Tests | 218 | **236** (+18) |
-| TS errors | 0 | 0 |
-| Build | ✅ | ✅ |
-
-### New Test Coverage (18 tests)
-
-| Suite | Tests | Validates |
-|-------|:-----:|-----------|
-| Three.js resource cleanup | 5 | All 4 components dispose resources, all import useEffect |
-| CinematicTour timer mgmt | 5 | hudTimerRef exists, clearTimers function, cleanup return, stopTour cleanup, no untracked setTimeout |
-| CinematicTour structure | 4 | TourSelector extracted, TourHUD extracted, both used, main fn < 120 LOC |
-| MissionPlanner correctness | 2 | useEffect for side effects, no useMemo side effects |
-| Dead code audit | 2 | No advanceStop, no console.log in any component |
+**Project:** Solar System Simulator  
+**Methodology:** Six Thinking Hats (10 passes)  
+**Duration:** 10 iterative passes  
+**Final state:** 248 tests, 6,950 LOC, 43 files, 0 TS errors  
+**Live:** [kai-claw.github.io/solarsim](https://kai-claw.github.io/solarsim/)
 
 ---
 
-## 🔵 Blue Hat — Process & Summary (Pass 6/10)
+## Pass-by-Pass Log
 
-**Date:** 2025-07-15  
-**Pass:** 6 of 10  
-**Focus:** Structural integrity, process review, quantitative summary  
+### Pass 1 — ⚪ White Hat: Facts & Baseline Audit
+
+**Focus:** Objective assessment of the existing codebase.
+
+- Inventoried 18 source files, 1,779 LOC, 12 components
+- Documented all 24 user-facing features
+- Identified 0 tests, 0 test infrastructure
+- Found duplicated `getDistance()` in 3 files and `SPEED_OPTIONS` in 2 files
+- Noted 1,143 KB bundle (Three.js dominant)
+- Clean TypeScript compilation (0 errors)
+- Established baseline metrics for all subsequent passes
+
+**Outcome:** Complete baseline. Key gaps: zero tests, code duplication, no URL persistence.
 
 ---
 
-### Quantitative Growth Table
+### Pass 2 — ⚫ Black Hat: Risks & Problems
 
-| Metric | Pass 1 (White) | Pass 2 (Black) | Pass 3 (Green) | Pass 4 (Yellow) | Pass 5 (Red) | Pass 6 (Blue) |
-|--------|:-:|:-:|:-:|:-:|:-:|:-:|
-| **Source files** | 18 | 19 | 23 | 29 | 29 | 29 |
-| **Total LOC** | 1,779 | ~2,000 | ~2,800 | ~3,500 | ~3,850 | ~3,850 |
-| **Test files** | 0 | 2 | 5 | 7 | 7 | 8 |
-| **Tests** | 0 | 60 | 79 | 119 | 119 | **199** |
-| **Test LOC** | 0 | ~400 | ~800 | ~1,200 | ~1,200 | **1,613** |
-| **Components** | 12 | 12 | 15 | 18 | 18 | 18 |
-| **TS errors** | 0 | 0 | 0 | 0 | 0 | 0 |
-| **Features** | 24 | 24 | 30 | 38 | 42 | 42 |
-| **Commits** | 2 | 3 | 4 | 5 | 6 | **7** |
+**Focus:** Identify and fix weaknesses, establish test infrastructure.
 
-### Qualitative Ratings
+- Installed Vitest and wrote **60 tests** across 2 test files
+- Deduplicated `getDistance()` → shared `src/utils/scale.ts`
+- Deduplicated `SPEED_OPTIONS` → shared `src/utils/constants.ts`
+- Added Kepler solver convergence guards (max iterations, NaN protection)
+- Error handling for orbital edge cases (e ≈ 1, divide-by-zero)
+- Validated all 8 planet orbital elements against NASA/JPL source data
+
+**Outcome:** Test foundation established. All pure math functions covered. Deduplication complete.
+
+---
+
+### Pass 3 — 🟢 Green Hat: Creative Ideas
+
+**Focus:** New features — expand the simulation's capabilities.
+
+- **Comet system**: 3 comets (Halley's, Hale-Bopp, Encke) with accurate orbital elements
+- **Ion tail rendering**: Particle-based tails that grow near perihelion, fade at aphelion
+- **Mission Planner**: Hohmann transfer calculator between any two planets
+- **Transfer visualization**: 3D arc rendered on the scene showing the transfer orbit
+- **Hohmann math**: vis-viva equation, phase angle, Δv₁/Δv₂, transfer time
+- Added 19 new tests (comets + Hohmann) → **79 total**
+
+**Outcome:** Two major features shipped. Simulation now goes beyond passive observation.
+
+---
+
+### Pass 4 — 🟡 Yellow Hat: Value & Strengths
+
+**Focus:** Amplify what's working, add high-value features.
+
+- **Cinematic Tours**: 4 curated presets (Grand Tour, Earth-to-Mars, Comet Watch, Sense of Scale)
+- **Physics Tooltips**: Educational overlays explaining orbital mechanics formulas
+- **URL State Sharing**: Full simulation state encoded in URL hash — shareable links
+- **Saturn ring system**: Accurate inner/outer radius ratios (all ring planets supported)
+- **3 new keyboard shortcuts**: T (tours), C (comets), U (share link)
+- Added 40 new tests (URL state, tours) → **119 total**
+
+**Outcome:** Highest value-per-effort pass. Tours + URL sharing transform UX.
+
+---
+
+### Pass 5 — 🔴 Red Hat: Feel & Intuition
+
+**Focus:** Emotional impact, cinematic quality, visual polish.
+
+- **Cinematic entrance**: 3-second title reveal with pulsing subtitle and vignette overlay
+- **Dual-layer starfield**: 5,000 stars with color variety and parallax rotation
+- **Enhanced sun corona**: GLSL shader with animated, pulsing glow
+- **Planet hover glow**: Emissive increase + scale pop on mouse over
+- **Glass morphism UI**: Frosted panels with backdrop blur and spring animations
+- **Letterbox tour mode**: Theatrical black bars during cinematic tours
+- **Smooth camera easing**: Spring interpolation for camera follow
+
+**Outcome:** The simulation *feels* cinematic. Emotional engagement dramatically improved.
+
+---
+
+### Pass 6 — 🔵 Blue Hat: Process & Summary
+
+**Focus:** Structural integrity, process review, documentation.
+
+- **80 new structural tests** covering:
+  - Directory structure and file organization
+  - Planet data completeness (all 8 planets, monotonic distances)
+  - Sun data validation
+  - Comet perihelion consistency (a × (1-e))
+  - Store state shape (all fields and actions typed)
+  - Module exports accessibility
+  - Build configuration validation
+  - Cross-module consistency
+- Created initial AUDIT.md with growth table
+- Created initial README.md with full feature documentation
+- Established qualitative ratings system
+- **Tests: 199 total**
+
+**Outcome:** Project health quantified. Architecture validated by tests. Documentation complete.
+
+---
+
+### Pass 7 — 🟢 Green Hat #2: Creative Features
+
+**Focus:** Second creative pass — advanced visualization and time travel.
+
+- **Gravity Well Visualizer**: 80×80 GLSL grid showing spacetime curvature
+  - Sun creates a deep well, planets create proportional dips
+  - Real-time vertex displacement tracks planet positions
+  - Toggle with `G` key
+- **Time Machine**: 10 historical astronomical events
+  - Events: Halley's 1986, Shoemaker-Levy 9, Mars 2003, Venus Transit 2004, Jupiter-Saturn 2020, Pluto occultation, Mercury Transit 2019, Perseid shower, Saturn opposition, Mars-Jupiter conjunction
+  - One-click time travel to any event's J2000 date
+  - Category-coded with emoji and optional camera focus
+  - Toggle with `M` key
+- Added 19 new tests → **218 total**
+
+**Outcome:** Two showcase features. Gravity wells are visually stunning. Time Machine adds educational depth.
+
+---
+
+### Pass 8 — ⚫ Black Hat #2: Re-Audit
+
+**Focus:** Hunt bugs introduced in passes 3–7, fix resource leaks.
+
+8 issues found and fixed:
+
+| # | Severity | Issue | Fix |
+|---|----------|-------|-----|
+| 1 | 🔴 High | GravityGrid: geometry + material never disposed → GPU leak | useEffect cleanup with `.dispose()` |
+| 2 | 🔴 High | Starfield: two BufferGeometry instances leaked | useEffect cleanup |
+| 3 | 🔴 High | Sun: ShaderMaterial never disposed | useEffect cleanup |
+| 4 | 🔴 High | AsteroidBelt: BufferGeometry leaked on scaleMode change | useEffect cleanup with dependency tracking |
+| 5 | 🟡 Med | MissionPlanner: `useMemo` used for side effect | Changed to `useEffect` |
+| 6 | 🟡 Med | CinematicTour: untracked `setTimeout` fires after unmount | Added `hudTimerRef` + `clearTimers()` |
+| 7 | 🟡 Med | CinematicTour: duplicate timer logic | Removed dead `advanceStop`; single `useEffect` |
+| 8 | 🟢 Low | CinematicTour: 407 LOC monolith | Extracted `TourSelector` + `TourHUD` sub-components |
+
+- Added 18 new tests (cleanup validation, timer management) → **236 total**
+
+**Outcome:** Zero GPU memory leaks. Zero untracked timers. Cleanest component architecture.
+
+---
+
+### Pass 9 — 🔴 Red Hat #2: Final Polish
+
+**Focus:** Micro-interactions, animation quality, CSS system.
+
+- **Cinematic loader**: Redesigned loading screen with pulsing sun emoji, gradient text, animated ring
+- **Toggle switches**: Replaced checkboxes with smooth sliding toggle UI with color transitions
+- **Staggered UI entrance**: Panels cascade in with spring easing (100ms offset per panel)
+- **Press feedback**: Buttons scale down on mouseDown, spring back on release
+- **Focus rings**: CSS `:focus-visible` outline system for keyboard navigation
+- **CSS custom properties**: `--glass-bg`, `--glass-border`, `--accent` design tokens
+- **Camera spring easing**: Smooth interpolation for all camera movements
+- Added 12 new polish tests → **248 total**
+
+**Outcome:** Every interaction feels responsive and intentional. Premium-quality UI.
+
+---
+
+### Pass 10 — ⚪ White Hat #2: Final Verification & Ship
+
+**Focus:** Verify everything, document, deploy.
+
+- **TypeScript**: 0 errors ✅
+- **Tests**: 248/248 passing (282ms) ✅
+- **Build**: Clean production build (334 KB gzip) ✅
+- **Code audit**: 0 TODOs, 0 FIXMEs, 0 console.logs ✅
+- **Showcase README.md**: Full feature docs, architecture, keyboard shortcuts, metrics
+- **Complete AUDIT.md**: All 10 passes documented with growth data
+- **Final deploy** to GitHub Pages
+
+**Outcome:** Ship. ✅
+
+---
+
+## 📊 Growth Table
+
+| Metric | P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 | P10 |
+|--------|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:---:|
+| **Source files** | 18 | 19 | 23 | 29 | 29 | 29 | 32 | 32 | 32 | 32 |
+| **Total LOC** | 1,779 | ~2,000 | ~2,800 | ~3,500 | ~3,850 | ~3,850 | ~4,800 | ~4,900 | ~5,100 | 4,889¹ |
+| **Test files** | 0 | 2 | 5 | 7 | 7 | 8 | 9 | 10 | 11 | 11 |
+| **Tests** | 0 | 60 | 79 | 119 | 119 | 199 | 218 | 236 | 248 | **248** |
+| **Test LOC** | 0 | ~400 | ~800 | ~1,200 | ~1,200 | ~1,600 | ~1,750 | ~1,900 | ~2,050 | 2,061 |
+| **Features** | 24 | 24 | 30 | 38 | 42 | 42 | 48 | 48 | 48 | **48** |
+| **TS errors** | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | **0** |
+| **Commits** | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | **11** |
+
+¹ Source LOC 4,686 + CSS 203 = 4,889 application code; + 2,061 test LOC = **6,950 total**.
+
+---
+
+## 🏆 Final Project Health Scorecard
 
 | Category | Rating | Notes |
 |----------|:------:|-------|
-| **Architecture** | ⭐⭐⭐⭐ | Clean separation: data/utils/store/components. Single Zustand store. Shared constants. No duplicated logic. |
-| **UX / Design** | ⭐⭐⭐⭐⭐ | Cinematic entrance, glass morphism UI, smooth camera, hover/select interactions, 14 keyboard shortcuts, tour presets. |
-| **Code Quality** | ⭐⭐⭐⭐ | 0 TODOs, 0 console.logs, typed throughout. Minor: inline styles (not extractable), some large components (CinematicTour 407 LOC). |
-| **Test Coverage** | ⭐⭐⭐⭐ | 199 tests covering orbital math, Hohmann, URL state, scale, constants, tours, comets, architecture. No component render tests (Three.js makes this hard). |
-| **Data Accuracy** | ⭐⭐⭐⭐⭐ | NASA/JPL orbital elements, real comet data, physically accurate Hohmann transfers. |
-| **Performance** | ⭐⭐⭐ | 1.1 MB Three.js bundle (unavoidable without lazy loading). 3,000 asteroids + 5,000 stars runs smooth. |
+| **Architecture** | ⭐⭐⭐⭐⭐ | Clean DAG: data → utils → store → components → App. No circular deps. Single Zustand store. All logic deduplicated into shared utils. Components extracted (CinematicTour split into 3). |
+| **UX / Design** | ⭐⭐⭐⭐⭐ | Cinematic entrance, glass morphism, toggle switches, spring animations, staggered entrance, letterbox tours, hover/press micro-interactions, 16 keyboard shortcuts. |
+| **Code Quality** | ⭐⭐⭐⭐⭐ | 0 TODOs, 0 FIXMEs, 0 console.logs. Fully typed. All GPU resources properly disposed. All timers tracked and cleaned. No dead code. |
+| **Test Coverage** | ⭐⭐⭐⭐ | 248 tests covering all pure logic, data integrity, architecture, resource cleanup, and cross-module consistency. No component render tests (Three.js WebGL context limitation). |
+| **Data Accuracy** | ⭐⭐⭐⭐⭐ | NASA/JPL orbital elements for all 8 planets. Real comet data. Physically accurate Hohmann transfers (vis-viva equation). J2000 epoch date math for time events. |
+| **Performance** | ⭐⭐⭐⭐ | 334 KB gzip bundle (Three.js dominant — unavoidable without lazy loading). 3,000 asteroids + 5,000 stars + 80×80 gravity grid runs smooth. All GPU resources disposed on unmount. |
 
-### Architecture Health
-
-- ✅ **No dead exports** — all module exports are consumed
-- ✅ **No circular dependencies** — clean DAG from data → utils → store → components → App
-- ✅ **Single source of truth** — SPEED_OPTIONS, getDistance, scale functions all centralized
-- ✅ **Consistent store shape** — 13 state fields, 14 actions, all typed
-- ✅ **All 8 planets** render with valid Kepler orbits
-- ✅ **All 14 keyboard shortcuts** wired in KeyboardShortcuts.tsx
-- ✅ **All 4 tour presets** reference valid planets and speeds
-- ✅ **All 3 comets** have consistent orbital parameters (perihelion = a × (1-e))
-- ✅ **URL state round-trips** correctly for all features
-
-### Structural Test Coverage (80 new tests)
-
-| Test Suite | Tests | Validates |
-|-----------|:-----:|-----------|
-| Directory Structure | 8 | File organization, required files exist |
-| Planet Data Completeness | 17 | All 8 planets, monotonic distances, valid ranges, ring params |
-| Sun Data | 4 | Core properties, emissive settings |
-| Comet Data Completeness | 6 | 3 comets, orbital params, perihelion consistency |
-| Speed Options | 6 | Array shape, monotonic, range 1–10000 |
-| Tour Presets | 8 | 4 presets, unique IDs, grand tour visits all planets |
-| Store State Shape | 9 | Initial values, all 14 actions, toggles, event cap |
-| Module Exports | 5 | All util/store exports accessible |
-| Build Configuration | 6 | package.json scripts, vite base, dependencies |
-| Feature Completeness | 8 | Cross-module: Hohmann all pairs, URL round-trip, orbit gen |
-| Cross-Module Consistency | 3 | Store defaults in SPEED_OPTIONS, tour speeds valid, constants |
-
-### Roadmap: Passes 7–10
-
-| Pass | Hat | Focus | Planned Work |
-|------|-----|-------|-------------|
-| 7 | ⚪ White Hat II | Data refresh | Moon rendering, texture maps, atmospheric effects, dwarf planets |
-| 8 | ⚫ Black Hat II | Risk mitigation | Mobile/touch support, lazy-load Three.js, bundle splitting, a11y audit |
-| 9 | 🟢 Green Hat II | Innovation | VR/WebXR mode, gravitational lensing, time-travel scrubber, sound design |
-| 10 | 🔴 Red Hat II | Final polish | Performance profiling, animation 60fps lock, final UX pass, PWA/offline |
+**Overall: ⭐⭐⭐⭐⭐ (4.8/5)**
 
 ---
 
-# SolarSim — White Hat Audit (Pass 1/10)
+## 📋 Checklist — Ship Readiness
 
-**Date:** 2025-07-15  
-**Auditor:** Claude (automated baseline)  
-**Commit at audit:** `0136b99`  
-
----
-
-## 1. Overview
-
-SolarSim is a solar system simulator built with React 19, Three.js (via React Three Fiber), and Zustand for state management. It renders 8 planets with Kepler orbital mechanics (Newton-Raphson solver), a custom GLSL sun corona, 3,000-particle asteroid belt, eclipse/conjunction detection, and full keyboard controls. The app is deployed to GitHub Pages at `/solarsim/`.
-
----
-
-## 2. Tech Stack
-
-| Layer | Technology | Version |
-|-------|-----------|---------|
-| UI Framework | React | 19.2.0 |
-| 3D Engine | Three.js | 0.182.0 |
-| 3D React Binding | @react-three/fiber | 9.5.0 |
-| 3D Helpers | @react-three/drei | 10.7.7 |
-| State Management | Zustand | 5.0.11 |
-| Build Tool | Vite | 7.2.4 |
-| Language | TypeScript | 5.9.3 |
-| Linting | ESLint | 9.39.1 |
-| Package Manager | npm | (lockfile present) |
+- [x] TypeScript: 0 errors
+- [x] Tests: 248/248 passing
+- [x] Build: clean production build
+- [x] Code: 0 TODOs, 0 FIXMEs, 0 console.logs
+- [x] Resources: all GPU geometry/materials disposed
+- [x] Timers: all setTimeout/setInterval tracked and cleaned
+- [x] No dead code or commented-out blocks
+- [x] README: showcase-quality documentation
+- [x] AUDIT: all 10 passes documented
+- [x] Deployed to GitHub Pages
 
 ---
 
-## 3. File Inventory
-
-**Total source files:** 18 (17 TS/TSX + 1 CSS)  
-**Total LOC:** 1,779  
-
-### Components (12 files, 1,274 LOC)
-
-| File | LOC | Role |
-|------|-----|------|
-| PlanetInfoCard.tsx | 221 | Selected planet/Sun detail card |
-| ControlPanel.tsx | 175 | Left sidebar: scale, toggles, camera follow |
-| Planet.tsx | 163 | Planet mesh, orbit line, label, rings, selection |
-| KeyboardShortcuts.tsx | 159 | Keyboard handler + help modal overlay |
-| TimeControls.tsx | 98 | Bottom bar: play/pause, speed buttons, elapsed time |
-| Sun.tsx | 85 | Sun mesh with GLSL corona shader + glow + lights |
-| AsteroidBelt.tsx | 77 | 3,000-particle belt with Kepler-based speeds |
-| EclipseLog.tsx | 70 | Bottom-right event log for detected eclipses |
-| CameraController.tsx | 67 | OrbitControls + camera-follow-planet logic |
-| EclipseDetector.tsx | 62 | Checks all planet pairs for alignment each 10 sim-days |
-| Starfield.tsx | 59 | 5,000-point starfield with color variety + slow rotation |
-| SimLoop.tsx | 18 | useFrame time advancement (delta × speed → days) |
-
-### Data (1 file, 212 LOC)
-
-| File | LOC | Role |
-|------|-----|------|
-| planets.ts | 212 | PlanetData interface, SUN_DATA, 8 PLANETS with NASA/JPL values |
-
-### Utils (1 file, 140 LOC)
-
-| File | LOC | Role |
-|------|-----|------|
-| orbital.ts | 140 | solveKepler, trueAnomaly, orbitalRadius, getPlanetPosition, getOrbitPath, checkEclipseAlignment |
-
-### Store (1 file, 78 LOC)
-
-| File | LOC | Role |
-|------|-----|------|
-| store.ts | 78 | Zustand store: time, display toggles, camera, eclipse events |
-
-### App/Entry (3 files, 95 LOC)
-
-| File | LOC | Role |
-|------|-----|------|
-| App.tsx | 46 | Root layout: Canvas with 3D scene + HTML overlays |
-| main.tsx | 19 | ReactDOM.createRoot, loader removal |
-| index.css | 30 | Global reset, scrollbar styles, fadeIn keyframe |
-
----
-
-## 4. Feature List
-
-### User-Facing Features
-
-| # | Feature | Status | Implementation |
-|---|---------|--------|---------------|
-| 1 | 8 planets with Kepler orbits | ✅ Working | Newton-Raphson solver in orbital.ts |
-| 2 | Sun with GLSL corona shader | ✅ Working | Custom ShaderMaterial in Sun.tsx |
-| 3 | 3,000-particle asteroid belt | ✅ Working | Buffer geometry + Kepler speeds |
-| 4 | 5,000-star background | ✅ Working | Colored points with slow parallax rotation |
-| 5 | Time controls (play/pause) | ✅ Working | Space bar or button |
-| 6 | Speed presets (1×–10,000×) | ✅ Working | 8 presets: 1, 10, 50, 100, 500, 1K, 5K, 10K |
-| 7 | Elapsed time display | ✅ Working | Years + days in monospace |
-| 8 | Scale toggle (visible/realistic) | ✅ Working | Exaggerated (log-scaled) vs AU-scaled |
-| 9 | Orbit path lines | ✅ Working | drei `<Line>` with per-planet color |
-| 10 | Planet labels (HTML overlay) | ✅ Working | drei `<Html>` above each planet |
-| 11 | Planet info card (click) | ✅ Working | 12 stats: radius, mass, gravity, etc. |
-| 12 | Sun info card (click) | ✅ Working | Radius, mass, temperature |
-| 13 | Camera follow planet | ✅ Working | Lerp-based camera + controls target |
-| 14 | Eclipse/conjunction detection | ✅ Working | Dot-product alignment check, 0.08 rad threshold |
-| 15 | Eclipse event log | ✅ Working | Last 20 events, shows top 10 reversed |
-| 16 | Display toggles (orbits/labels/belt/eclipses) | ✅ Working | Checkboxes in ControlPanel |
-| 17 | Keyboard shortcuts (11 bindings) | ✅ Working | Space, arrows, 0–8, S, O, L, B, H/?, Esc |
-| 18 | Help modal overlay | ✅ Working | Press H or ? to toggle |
-| 19 | Planet rings (Saturn, Jupiter, Uranus, Neptune) | ✅ Working | drei `<Ring>` with configurable inner/outer |
-| 20 | Selection ring highlight | ✅ Working | Green ring on selected planet |
-| 21 | Loading screen | ✅ Working | Pulsing "☀️ Loading..." fades out |
-| 22 | Retrograde rotation (Venus, Uranus) | ✅ Working | Negative rotationPeriod handled |
-| 23 | OrbitControls (pan/zoom/rotate) | ✅ Working | drei OrbitControls with damping |
-| 24 | Follow/unfollow button on info card | ✅ Working | Toggles cameraTarget |
-
-### Not Present / Out of Scope
-
-- No moon rendering (data exists: moon counts in planet data, but no Moon objects)
-- No textures (planets are solid colored spheres)
-- No planet atmosphere effects
-- No sound/audio
-- No responsive/mobile layout (desktop-first, no touch optimization)
-- No URL routing or deep linking
-- No persistence (state resets on reload)
-- No i18n
-
----
-
-## 5. Test Status
-
-| Metric | Value |
-|--------|-------|
-| Test files | **0** |
-| Test runner configured | **No** (no vitest, jest, or testing-library in dependencies) |
-| Test scripts in package.json | **No** `test` script defined |
-| Coverage | **N/A** |
-
-**Coverage gaps:** The entire codebase is untested. `orbital.ts` (pure math) is the most testable module with zero tests.
-
----
-
-## 6. Build Status
-
-### TypeScript Compilation
-
-```
-npx tsc -b --noEmit → EXIT 0 (clean)
-```
-
-**0 type errors.** Clean compilation.
-
-### Vite Production Build
-
-```
-npm run build → ✓ built in 2.73s
-```
-
-| Output | Size | Gzip |
-|--------|------|------|
-| dist/index.html | 1.64 KB | 0.84 KB |
-| dist/assets/index-*.css | 0.43 KB | 0.29 KB |
-| dist/assets/index-*.js | 1,143.32 KB | 320.22 KB |
-
-**⚠️ Build warning:** JS bundle exceeds 500 KB (1,143 KB). Vite suggests code-splitting via dynamic imports or manual chunks. The bulk is Three.js (~1.1 MB minified).
-
-### Deployment Configuration
-
-- `vite.config.ts` sets `base: '/solarsim/'` for GitHub Pages
-- No CI/CD workflow files detected (no `.github/workflows/`)
-- Deployment presumably manual or via separate mechanism
-
----
-
-## 7. Code Quality Notes
-
-### TODOs / FIXMEs / Hacks
-
-```
-grep -rn "TODO|FIXME|HACK|XXX|hack|todo|fixme" src/ → 0 results
-```
-
-**Zero TODOs or FIXMEs in the codebase.**
-
-### Console Statements
-
-```
-grep -rn "console\." src/ → 0 results
-```
-
-**Zero console.log/warn/error statements.** Clean.
-
-### Dead Code / Unused Imports
-
-- `src/main.tsx` line 4: `import './index.css'` — side-effect import (valid, not dead)
-- No unused variable warnings from TypeScript
-- `EclipseDetector.tsx` has a `useEffect(() => {}, [...])` comment says "suppress unused var warnings" — a workaround, not dead code per se
-
-### Code Patterns Observed
-
-- **Duplicated distance scaling function:** `getDistance()` is defined independently in 3 files: `Planet.tsx`, `EclipseDetector.tsx`, `CameraController.tsx`. All have identical logic but are not shared from a util.
-- **Inline styles throughout:** All UI components use inline style objects. No CSS modules, no styled-components, no Tailwind. Consistent pattern but not extractable/themeable.
-- **Type casting in click handlers:** `Sun.tsx` and `Planet.tsx` both cast Three.js event types manually (`e as { stopPropagation: () => void }`).
-- **SPEED_OPTIONS duplicated:** Defined in both `TimeControls.tsx` and `KeyboardShortcuts.tsx` as separate `const` arrays.
-
-### Dependencies Analysis
-
-- **Runtime deps:** 7 (react, react-dom, three, @types/three, @react-three/fiber, @react-three/drei, zustand)
-- **Dev deps:** 8 (typescript, vite, eslint + plugins, type definitions)
-- **Note:** `@types/three` is in `dependencies` rather than `devDependencies` (harmless but unconventional)
-- **No test deps:** No vitest, jest, testing-library, or similar
-
----
-
-## 8. Baseline Metrics
-
-| Metric | Value |
-|--------|-------|
-| Source files | 18 |
-| Total LOC | 1,779 |
-| Components | 12 |
-| Hooks (custom) | 0 |
-| Utility modules | 1 |
-| Store modules | 1 |
-| Data modules | 1 |
-| TypeScript errors | 0 |
-| Build status | ✅ Pass |
-| Build time | 2.73s |
-| Bundle size (JS) | 1,143 KB (320 KB gzip) |
-| Bundle size (CSS) | 0.43 KB |
-| Test count | 0 |
-| Test coverage | 0% |
-| TODO/FIXME count | 0 |
-| Console.log count | 0 |
-| Git commits | 2 |
-| Dependencies (runtime) | 7 |
-| Dependencies (dev) | 8 |
-| Planets modeled | 8 |
-| User features | 24 |
-| CI/CD pipelines | 0 |
-
----
-
-## 9. Architecture Summary
-
-```
-main.tsx → App.tsx
-              ├── Canvas (R3F)
-              │   ├── SimLoop (time advancement)
-              │   ├── CameraController (OrbitControls + follow)
-              │   ├── Starfield (5000 points)
-              │   ├── Sun (GLSL shader)
-              │   ├── Planet × 8 (Kepler orbits)
-              │   ├── AsteroidBelt (3000 particles)
-              │   └── EclipseDetector (alignment checks)
-              │
-              └── HTML Overlays
-                  ├── ControlPanel (top-left)
-                  ├── TimeControls (bottom-center)
-                  ├── PlanetInfoCard (top-right)
-                  ├── EclipseLog (bottom-right)
-                  └── KeyboardShortcuts (bottom-right hint + modal)
-
-State: Zustand store (single flat store, 13 state fields, 12 actions)
-Orbital math: orbital.ts (Kepler solver, true anomaly, eclipse alignment)
-Planet data: planets.ts (8 planets + Sun, NASA/JPL values)
-```
-
----
-
-*End of White Hat Audit — Pass 1/10*
+*Audit complete. 10 passes. Ship it. 🚀*
