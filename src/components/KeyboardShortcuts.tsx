@@ -1,9 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useStore } from '../store/store'
 import { PLANETS } from '../data/planets'
 import { SPEED_OPTIONS } from '../utils/constants'
 
-export function KeyboardShortcuts() {
+interface KeyboardShortcutsProps {
+  onTourToggle?: () => void
+}
+
+export function KeyboardShortcuts({ onTourToggle }: KeyboardShortcutsProps) {
   const [showHelp, setShowHelp] = useState(false)
   const togglePaused = useStore((s) => s.togglePaused)
   const setSpeed = useStore((s) => s.setSpeed)
@@ -11,10 +15,16 @@ export function KeyboardShortcuts() {
   const toggleOrbits = useStore((s) => s.toggleOrbits)
   const toggleLabels = useStore((s) => s.toggleLabels)
   const toggleAsteroidBelt = useStore((s) => s.toggleAsteroidBelt)
+  const toggleComets = useStore((s) => s.toggleComets)
   const scaleMode = useStore((s) => s.scaleMode)
   const setScaleMode = useStore((s) => s.setScaleMode)
   const setCameraTarget = useStore((s) => s.setCameraTarget)
   const setSelectedPlanet = useStore((s) => s.setSelectedPlanet)
+  
+  const handleShareLink = useCallback(() => {
+    const url = window.location.href
+    navigator.clipboard.writeText(url).catch(() => { /* ignore clipboard errors */ })
+  }, [])
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
@@ -46,6 +56,15 @@ export function KeyboardShortcuts() {
           break
         case 's':
           setScaleMode(scaleMode === 'exaggerated' ? 'realistic' : 'exaggerated')
+          break
+        case 't':
+          onTourToggle?.()
+          break
+        case 'c':
+          toggleComets()
+          break
+        case 'u':
+          handleShareLink()
           break
         case 'arrowup':
         case '+':
@@ -80,7 +99,7 @@ export function KeyboardShortcuts() {
 
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [togglePaused, setSpeed, speed, toggleOrbits, toggleLabels, toggleAsteroidBelt, scaleMode, setScaleMode, setCameraTarget, setSelectedPlanet])
+  }, [togglePaused, setSpeed, speed, toggleOrbits, toggleLabels, toggleAsteroidBelt, toggleComets, scaleMode, setScaleMode, setCameraTarget, setSelectedPlanet, onTourToggle, handleShareLink])
 
   if (!showHelp) {
     return (
@@ -129,12 +148,15 @@ export function KeyboardShortcuts() {
             ['Space', 'Play / Pause'],
             ['↑ / +', 'Speed up'],
             ['↓ / -', 'Slow down'],
+            ['1-8', 'Focus planet'],
+            ['0', 'Free camera'],
+            ['T', 'Cinematic tours'],
             ['S', 'Toggle scale mode'],
             ['O', 'Toggle orbits'],
             ['L', 'Toggle labels'],
             ['B', 'Toggle asteroid belt'],
-            ['1-8', 'Focus planet'],
-            ['0', 'Free camera'],
+            ['C', 'Toggle comets'],
+            ['U', 'Copy share link'],
             ['Esc', 'Deselect / close'],
             ['H / ?', 'Toggle this help'],
           ].map(([key, desc]) => (

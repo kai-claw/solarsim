@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Sun } from './components/Sun'
 import { Planet } from './components/Planet'
@@ -14,10 +15,22 @@ import { PlanetInfoCard } from './components/PlanetInfoCard'
 import { EclipseLog } from './components/EclipseLog'
 import { MissionPlanner } from './components/MissionPlanner'
 import { KeyboardShortcuts } from './components/KeyboardShortcuts'
+import { CinematicTour } from './components/CinematicTour'
+import { URLStateSync } from './components/URLStateSync'
 import { PLANETS } from './data/planets'
 import { COMETS } from './data/comets'
 
 export default function App() {
+  const [tourOpen, setTourOpen] = useState(false)
+
+  const handleTourToggle = useCallback(() => {
+    setTourOpen((v) => !v)
+  }, [])
+
+  const handleTourClose = useCallback(() => {
+    setTourOpen(false)
+  }, [])
+
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       <Canvas
@@ -49,7 +62,9 @@ export default function App() {
       <PlanetInfoCard />
       <EclipseLog />
       <MissionPlanner />
-      <KeyboardShortcuts />
+      <CinematicTour externalOpen={tourOpen} onClose={handleTourClose} />
+      <KeyboardShortcuts onTourToggle={handleTourToggle} />
+      <URLStateSync />
     </div>
   )
 }

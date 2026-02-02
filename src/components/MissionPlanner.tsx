@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useStore } from '../store/store'
 import { PLANETS } from '../data/planets'
 import { computeHohmann } from '../utils/hohmann'
+import { PhysicsTooltips } from './PhysicsTooltips'
 
 const panelStyles = {
   container: {
@@ -218,6 +219,9 @@ export function MissionPlanner() {
               ✨ Transfer orbit displayed in 3D view
             </div>
           )}
+
+          {/* Educational physics breakdown */}
+          <PhysicsTooltips hohmann={hohmann} originName={origin} destName={destination} />
         </div>
       )}
     </div>

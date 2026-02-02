@@ -103,19 +103,44 @@ export function Planet({ data }: PlanetProps) {
           </mesh>
         )}
 
-        {/* Planet rings (Saturn, etc.) */}
+        {/* Planet rings (Saturn, etc.) — multi-band for realism */}
         {data.hasRings && data.ringInner && data.ringOuter && (
-          <Ring
-            args={[radius * data.ringInner, radius * data.ringOuter, 64]}
-            rotation={[Math.PI / 2.5, 0, 0]}
-          >
-            <meshBasicMaterial
-              color={data.ringColor || '#C4A882'}
-              transparent
-              opacity={0.5}
-              side={THREE.DoubleSide}
-            />
-          </Ring>
+          <group rotation={[Math.PI / 2.5, 0, 0]}>
+            {/* Main ring bands with varying opacity for gap effect */}
+            {data.name === 'Saturn' ? (
+              <>
+                {/* C Ring (inner, faint) */}
+                <Ring args={[radius * 1.3, radius * 1.55, 64]}>
+                  <meshBasicMaterial color="#8B7355" transparent opacity={0.2} side={THREE.DoubleSide} />
+                </Ring>
+                {/* B Ring (brightest) */}
+                <Ring args={[radius * 1.6, radius * 2.2, 64]}>
+                  <meshBasicMaterial color="#D4B896" transparent opacity={0.65} side={THREE.DoubleSide} />
+                </Ring>
+                {/* Cassini Division (gap — very faint) */}
+                <Ring args={[radius * 2.2, radius * 2.35, 64]}>
+                  <meshBasicMaterial color="#3a3020" transparent opacity={0.08} side={THREE.DoubleSide} />
+                </Ring>
+                {/* A Ring (outer, moderately bright) */}
+                <Ring args={[radius * 2.35, radius * 3.0, 64]}>
+                  <meshBasicMaterial color="#C4A882" transparent opacity={0.5} side={THREE.DoubleSide} />
+                </Ring>
+                {/* F Ring (thin outer) */}
+                <Ring args={[radius * 3.1, radius * 3.2, 64]}>
+                  <meshBasicMaterial color="#A09070" transparent opacity={0.25} side={THREE.DoubleSide} />
+                </Ring>
+              </>
+            ) : (
+              <Ring args={[radius * data.ringInner, radius * data.ringOuter, 64]}>
+                <meshBasicMaterial
+                  color={data.ringColor || '#C4A882'}
+                  transparent
+                  opacity={0.4}
+                  side={THREE.DoubleSide}
+                />
+              </Ring>
+            )}
+          </group>
         )}
 
         {/* Label */}
